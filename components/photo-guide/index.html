@@ -15,27 +15,24 @@
   .s1230-photo-guide {
     /* Цвета */
     --s1230-pg-bg: #ffffff;
-    --s1230-pg-text: #0b0b0b;
+    --s1230-pg-text: #111111;
     --s1230-pg-muted: #6b6b6b;
-    --s1230-pg-line: #e3e3e3;
-    --s1230-pg-placeholder: #f1f1ef;
-    --s1230-pg-placeholder-text: #a4a4a0;
+    --s1230-pg-placeholder: #f2f2f0;
     --s1230-pg-accent: #e2231a;
     --s1230-pg-button-hover: #333333;
 
-    /* Типографика */
-    --s1230-pg-font: "TildaSans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    --s1230-pg-h1: clamp(32px, 9.4vw, 104px);
-    --s1230-pg-h2: clamp(28px, 7vw, 60px);
-    --s1230-pg-h3: clamp(20px, 5vw, 26px);
-    --s1230-pg-lead: clamp(17px, 4.4vw, 22px);
+    /* Размеры текста. Шрифт наследуется со страницы Tilda */
+    --s1230-pg-h1: clamp(28px, 7.6vw, 34px);
+    --s1230-pg-h2: 24px;
+    --s1230-pg-h3: 18px;
+    --s1230-pg-lead: 16px;
 
     /* Сетка и отступы */
     --s1230-pg-max-width: 1240px;
     --s1230-pg-gutter: 20px;
-    --s1230-pg-section-gap: 72px;
+    --s1230-pg-section-gap: 56px;
     --s1230-pg-grid-gap-x: 12px;
-    --s1230-pg-grid-gap-y: 32px;
+    --s1230-pg-grid-gap-y: 28px;
     --s1230-pg-media-ratio: 125%; /* 4:5 */
 
     display: block;
@@ -44,15 +41,13 @@
     padding: 0;
     background: var(--s1230-pg-bg);
     color: var(--s1230-pg-text);
-    font-family: var(--s1230-pg-font);
+    font-family: inherit;
     font-size: 16px;
     font-weight: 400;
     line-height: 1.5;
     text-align: left;
     text-transform: none;
     letter-spacing: normal;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
   }
@@ -66,7 +61,7 @@
   .s1230-photo-guide .s1230-photo-guide__inner {
     max-width: var(--s1230-pg-max-width);
     margin: 0 auto;
-    padding: 20px var(--s1230-pg-gutter) 96px;
+    padding: 8px var(--s1230-pg-gutter) 64px;
   }
 
   /* ---------- Ссылка назад ---------- */
@@ -78,8 +73,9 @@
     min-height: 44px;
     padding: 0;
     color: var(--s1230-pg-text);
-    font-size: 14px;
-    font-weight: 500;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 400;
     line-height: 1.2;
     text-decoration: none;
     border: 0;
@@ -100,72 +96,54 @@
   /* ---------- Первый экран ---------- */
 
   .s1230-photo-guide .s1230-photo-guide__hero {
-    padding: 56px 0 0;
-  }
-
-  .s1230-photo-guide .s1230-photo-guide__eyebrow {
-    margin: 0 0 20px;
-    padding: 0;
-    color: var(--s1230-pg-text);
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1.3;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    padding: 16px 0 0;
   }
 
   .s1230-photo-guide .s1230-photo-guide__title {
-    max-width: 12em;
-    font-style: normal;
-    text-transform: none;
     margin: 0;
     padding: 0;
     color: var(--s1230-pg-text);
     font-family: inherit;
     font-size: var(--s1230-pg-h1);
+    font-style: normal;
     font-weight: 600;
-    line-height: 0.98;
-    letter-spacing: -0.035em;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    text-transform: none;
     overflow-wrap: break-word;
   }
 
   .s1230-photo-guide .s1230-photo-guide__lead {
-    max-width: 30em;
-    margin: 28px 0 0;
+    max-width: 34em;
+    margin: 12px 0 0;
     padding: 0;
     color: var(--s1230-pg-text);
     font-size: var(--s1230-pg-lead);
-    line-height: 1.4;
-    letter-spacing: -0.005em;
-  }
-
-  .s1230-photo-guide .s1230-photo-guide__meta {
-    margin: 20px 0 0;
-    padding: 0;
-    color: var(--s1230-pg-muted);
-    font-size: 13px;
-    line-height: 1.4;
+    line-height: 1.45;
   }
 
   /* ---------- Секции ---------- */
 
   .s1230-photo-guide .s1230-photo-guide__section {
     margin: var(--s1230-pg-section-gap) 0 0;
-    padding: 24px 0 0;
-    border-top: 1px solid var(--s1230-pg-line);
+    padding: 0;
+  }
+
+  .s1230-photo-guide .s1230-photo-guide__hero + .s1230-photo-guide__section {
+    margin-top: 40px;
   }
 
   .s1230-photo-guide .s1230-photo-guide__h2 {
-    margin: 0 0 36px;
-    font-style: normal;
-    text-transform: none;
+    margin: 0 0 20px;
     padding: 0;
     color: var(--s1230-pg-text);
     font-family: inherit;
     font-size: var(--s1230-pg-h2);
+    font-style: normal;
     font-weight: 600;
-    line-height: 1.02;
-    letter-spacing: -0.03em;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    text-transform: none;
   }
 
   .s1230-photo-guide .s1230-photo-guide__list {
@@ -214,15 +192,7 @@
   }
 
   .s1230-photo-guide .s1230-photo-guide__placeholder {
-    display: flex;
-    align-items: flex-end;
-    padding: 12px;
-    color: var(--s1230-pg-placeholder-text);
-    font-size: 11px;
-    font-weight: 500;
-    line-height: 1.2;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    display: block;
   }
 
   /* ---------- Кадры ---------- */
@@ -233,45 +203,21 @@
     gap: var(--s1230-pg-grid-gap-y) var(--s1230-pg-grid-gap-x);
   }
 
-  .s1230-photo-guide .s1230-photo-guide__shot-meta {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-    gap: 8px;
-    margin: 14px 0 6px;
-  }
-
-  .s1230-photo-guide .s1230-photo-guide__num {
-    color: var(--s1230-pg-text);
-    font-size: 12px;
-    font-weight: 500;
-    line-height: 1.2;
-    letter-spacing: 0.04em;
-    font-variant-numeric: tabular-nums;
-  }
-
-  .s1230-photo-guide .s1230-photo-guide__req {
-    color: var(--s1230-pg-muted);
-    font-size: 11px;
-    line-height: 1.2;
-    letter-spacing: 0.02em;
-  }
-
   .s1230-photo-guide .s1230-photo-guide__shot-title {
-    margin: 0;
-    font-style: normal;
-    text-transform: none;
+    margin: 12px 0 0;
     padding: 0;
     color: var(--s1230-pg-text);
     font-family: inherit;
     font-size: 16px;
+    font-style: normal;
     font-weight: 600;
-    line-height: 1.25;
-    letter-spacing: -0.01em;
+    line-height: 1.3;
+    letter-spacing: normal;
+    text-transform: none;
   }
 
   .s1230-photo-guide .s1230-photo-guide__shot-text {
-    margin: 4px 0 0;
+    margin: 2px 0 0;
     padding: 0;
     color: var(--s1230-pg-muted);
     font-size: 14px;
@@ -281,32 +227,27 @@
   /* ---------- Отдельные категории ---------- */
 
   .s1230-photo-guide .s1230-photo-guide__extra {
-    margin: 64px 0 0;
+    margin: 40px 0 0;
   }
 
   .s1230-photo-guide .s1230-photo-guide__h3 {
-    max-width: 16em;
-    font-style: normal;
-    text-transform: none;
-    margin: 0 0 16px;
+    max-width: 18em;
+    margin: 0 0 12px;
     padding: 0;
     color: var(--s1230-pg-text);
     font-family: inherit;
     font-size: var(--s1230-pg-h3);
+    font-style: normal;
     font-weight: 600;
-    line-height: 1.2;
-    letter-spacing: -0.015em;
+    line-height: 1.3;
+    letter-spacing: normal;
+    text-transform: none;
   }
 
   .s1230-photo-guide .s1230-photo-guide__extra-item {
-    padding: 14px 0;
-    border-top: 1px solid var(--s1230-pg-line);
+    padding: 6px 0;
     font-size: 15px;
     line-height: 1.45;
-  }
-
-  .s1230-photo-guide .s1230-photo-guide__extra-item:last-child {
-    border-bottom: 1px solid var(--s1230-pg-line);
   }
 
   .s1230-photo-guide .s1230-photo-guide__extra-term {
@@ -324,39 +265,28 @@
 
   .s1230-photo-guide .s1230-photo-guide__rules {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: 0;
-  }
-
-  .s1230-photo-guide .s1230-photo-guide__rule {
-    display: grid;
-    grid-template-columns: 40px minmax(0, 1fr);
-    padding: 16px 0;
-    border-top: 1px solid var(--s1230-pg-line);
-  }
-
-  .s1230-photo-guide .s1230-photo-guide__rule .s1230-photo-guide__num {
-    padding-top: 3px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px var(--s1230-pg-grid-gap-x);
   }
 
   .s1230-photo-guide .s1230-photo-guide__rule-title {
     margin: 0;
-    font-style: normal;
-    text-transform: none;
     padding: 0;
     color: var(--s1230-pg-text);
     font-family: inherit;
-    font-size: 17px;
+    font-size: 16px;
+    font-style: normal;
     font-weight: 600;
     line-height: 1.3;
-    letter-spacing: -0.01em;
+    letter-spacing: normal;
+    text-transform: none;
   }
 
   .s1230-photo-guide .s1230-photo-guide__rule-text {
     margin: 2px 0 0;
     padding: 0;
     color: var(--s1230-pg-muted);
-    font-size: 15px;
+    font-size: 14px;
     line-height: 1.4;
   }
 
@@ -366,7 +296,7 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--s1230-pg-grid-gap-y) var(--s1230-pg-grid-gap-x);
-    margin: 48px 0 0;
+    margin: 32px 0 0;
   }
 
   .s1230-photo-guide .s1230-photo-guide__example {
@@ -376,27 +306,23 @@
 
   .s1230-photo-guide .s1230-photo-guide__verdict {
     display: flex;
-    align-items: center;
+    align-items: baseline;
     gap: 6px;
-    margin: 0 0 12px;
+    margin: 0 0 10px;
+    padding: 0;
     color: var(--s1230-pg-text);
-    font-size: 13px;
+    font-size: 16px;
     font-weight: 600;
-    line-height: 1.2;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    line-height: 1.3;
   }
 
   .s1230-photo-guide .s1230-photo-guide__verdict-mark {
     color: var(--s1230-pg-accent);
-    font-size: 16px;
-    font-weight: 500;
-    line-height: 1;
-    letter-spacing: 0;
+    font-weight: 400;
   }
 
   .s1230-photo-guide .s1230-photo-guide__example-caption {
-    margin: 12px 0 0;
+    margin: 10px 0 0;
     padding: 0;
     color: var(--s1230-pg-muted);
     font-size: 14px;
@@ -406,33 +332,12 @@
   /* ---------- Финал ---------- */
 
   .s1230-photo-guide .s1230-photo-guide__final-text {
-    max-width: 32em;
-    margin: 20px 0 0;
+    max-width: 34em;
+    margin: 0 0 8px;
     padding: 0;
     color: var(--s1230-pg-text);
-    font-size: 17px;
+    font-size: 16px;
     line-height: 1.45;
-  }
-
-  .s1230-photo-guide .s1230-photo-guide__checklist {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px 0;
-    margin: 0;
-    color: var(--s1230-pg-text);
-    font-size: 15px;
-    font-weight: 500;
-    line-height: 1.4;
-  }
-
-  .s1230-photo-guide .s1230-photo-guide__checklist > li {
-    white-space: nowrap;
-  }
-
-  .s1230-photo-guide .s1230-photo-guide__checklist > li:not(:last-child)::after {
-    content: "·";
-    margin: 0 10px;
-    color: var(--s1230-pg-muted);
   }
 
   .s1230-photo-guide .s1230-photo-guide__button {
@@ -440,9 +345,9 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    min-height: 56px;
-    margin: 36px 0 0;
-    padding: 16px 32px;
+    min-height: 52px;
+    margin: 24px 0 0;
+    padding: 14px 32px;
     border: 0;
     border-radius: 0;
     background: var(--s1230-pg-text);
@@ -451,16 +356,20 @@
     font-size: 16px;
     font-weight: 500;
     line-height: 1.2;
-    letter-spacing: 0.01em;
     text-align: center;
     text-decoration: none;
     cursor: pointer;
     transition: background-color 0.2s ease;
   }
 
+  .s1230-photo-guide .s1230-photo-guide__button:hover {
+    background: var(--s1230-pg-button-hover);
+    color: var(--s1230-pg-bg);
+  }
+
   .s1230-photo-guide .s1230-photo-guide__tab-note {
-    max-width: 32em;
-    margin: 16px 0 0;
+    max-width: 34em;
+    margin: 12px 0 0;
     padding: 0;
     color: var(--s1230-pg-muted);
     font-size: 14px;
@@ -471,45 +380,39 @@
     display: none;
   }
 
-  .s1230-photo-guide .s1230-photo-guide__button:hover {
-    background: var(--s1230-pg-button-hover);
-    color: var(--s1230-pg-bg);
-  }
-
   /* ---------- Планшет ---------- */
 
   @media (min-width: 768px) {
     .s1230-photo-guide {
+      --s1230-pg-h1: clamp(36px, 4.2vw, 52px);
+      --s1230-pg-h2: 28px;
+      --s1230-pg-h3: 20px;
+      --s1230-pg-lead: 18px;
       --s1230-pg-gutter: 32px;
-      --s1230-pg-section-gap: 104px;
+      --s1230-pg-section-gap: 72px;
       --s1230-pg-grid-gap-x: 20px;
-      --s1230-pg-grid-gap-y: 48px;
-      --s1230-pg-h1: clamp(56px, 7.8vw, 96px);
+      --s1230-pg-grid-gap-y: 36px;
     }
 
     .s1230-photo-guide .s1230-photo-guide__inner {
-      padding-top: 28px;
-      padding-bottom: 128px;
+      padding-top: 16px;
+      padding-bottom: 88px;
     }
 
     .s1230-photo-guide .s1230-photo-guide__hero {
-      padding-top: 88px;
-    }
-
-    .s1230-photo-guide .s1230-photo-guide__eyebrow {
-      margin-bottom: 28px;
+      padding-top: 24px;
     }
 
     .s1230-photo-guide .s1230-photo-guide__lead {
-      margin-top: 36px;
+      margin-top: 16px;
     }
 
-    .s1230-photo-guide .s1230-photo-guide__section {
-      padding-top: 28px;
+    .s1230-photo-guide .s1230-photo-guide__hero + .s1230-photo-guide__section {
+      margin-top: 56px;
     }
 
     .s1230-photo-guide .s1230-photo-guide__h2 {
-      margin-bottom: 56px;
+      margin-bottom: 24px;
     }
 
     .s1230-photo-guide .s1230-photo-guide__shots,
@@ -518,27 +421,24 @@
     }
 
     .s1230-photo-guide .s1230-photo-guide__shot-title {
-      font-size: 18px;
+      font-size: 17px;
     }
 
-    .s1230-photo-guide .s1230-photo-guide__shot-text {
+    .s1230-photo-guide .s1230-photo-guide__shot-text,
+    .s1230-photo-guide .s1230-photo-guide__rule-text {
       font-size: 15px;
-    }
-
-    .s1230-photo-guide .s1230-photo-guide__placeholder {
-      padding: 16px;
     }
 
     .s1230-photo-guide .s1230-photo-guide__extra {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 0 var(--s1230-pg-grid-gap-x);
-      margin-top: 96px;
+      margin-top: 56px;
     }
 
     .s1230-photo-guide .s1230-photo-guide__extra .s1230-photo-guide__h3 {
       margin: 0;
-      padding-top: 14px;
+      padding-top: 4px;
     }
 
     .s1230-photo-guide .s1230-photo-guide__extra .s1230-photo-guide__list {
@@ -551,24 +451,19 @@
       gap: 0 var(--s1230-pg-grid-gap-x);
     }
 
-    .s1230-photo-guide .s1230-photo-guide__rules {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 0 var(--s1230-pg-grid-gap-x);
-    }
-
     .s1230-photo-guide .s1230-photo-guide__compare {
-      margin-top: 72px;
+      margin-top: 40px;
     }
 
     .s1230-photo-guide .s1230-photo-guide__final-text {
-      font-size: 19px;
+      font-size: 17px;
     }
 
     .s1230-photo-guide .s1230-photo-guide__button {
       display: inline-flex;
       width: auto;
-      min-width: 320px;
-      margin-top: 44px;
+      min-width: 280px;
+      margin-top: 28px;
     }
   }
 
@@ -576,33 +471,19 @@
 
   @media (min-width: 1024px) {
     .s1230-photo-guide {
+      --s1230-pg-h2: 32px;
       --s1230-pg-gutter: 48px;
-      --s1230-pg-section-gap: 136px;
+      --s1230-pg-section-gap: 88px;
       --s1230-pg-grid-gap-x: 24px;
-      --s1230-pg-grid-gap-y: 64px;
+      --s1230-pg-grid-gap-y: 44px;
     }
 
     .s1230-photo-guide .s1230-photo-guide__inner {
-      padding-bottom: 160px;
-    }
-
-    .s1230-photo-guide .s1230-photo-guide__hero {
-      padding-top: 120px;
+      padding-bottom: 104px;
     }
 
     .s1230-photo-guide .s1230-photo-guide__rules {
       grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-
-    .s1230-photo-guide .s1230-photo-guide__rule {
-      display: block;
-      padding: 20px 0 0;
-    }
-
-    .s1230-photo-guide .s1230-photo-guide__rule .s1230-photo-guide__num {
-      display: block;
-      margin-bottom: 24px;
-      padding-top: 0;
     }
   }
 
@@ -623,10 +504,8 @@
 
     <!-- 1. Первый экран -->
     <header class="s1230-photo-guide__hero">
-      <p class="s1230-photo-guide__eyebrow">Заявка на продажу · Фото</p>
       <h1 class="s1230-photo-guide__title">Как сфотографировать вещь</h1>
-      <p class="s1230-photo-guide__lead">Хватит телефона и дневного света. Несколько кадров&nbsp;— и&nbsp;мы сможем быстро оценить вещь.</p>
-      <p class="s1230-photo-guide__meta">≈ 1 минута</p>
+      <p class="s1230-photo-guide__lead">Хватит телефона и дневного света. По&nbsp;нескольким фото мы быстро оценим вещь.</p>
     </header>
 
     <!-- 2. Какие кадры нужны -->
@@ -637,11 +516,7 @@
         <li class="s1230-photo-guide__shot">
           <div class="s1230-photo-guide__media">
             <!-- <img class="s1230-photo-guide__img" src="URL" alt="Вещь спереди целиком на однотонном фоне" loading="lazy"> -->
-            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример: вещь спереди целиком. Фото скоро появится">Фото 01</span>
-          </div>
-          <div class="s1230-photo-guide__shot-meta">
-            <span class="s1230-photo-guide__num">01</span>
-            <span class="s1230-photo-guide__req">главное</span>
+            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример: вещь спереди целиком. Фото скоро появится"></span>
           </div>
           <h3 class="s1230-photo-guide__shot-title">Спереди</h3>
           <p class="s1230-photo-guide__shot-text">Вещь полностью в&nbsp;кадре.</p>
@@ -650,66 +525,46 @@
         <li class="s1230-photo-guide__shot">
           <div class="s1230-photo-guide__media">
             <!-- <img class="s1230-photo-guide__img" src="URL" alt="Вещь сзади целиком на однотонном фоне" loading="lazy"> -->
-            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример: вещь сзади целиком. Фото скоро появится">Фото 02</span>
-          </div>
-          <div class="s1230-photo-guide__shot-meta">
-            <span class="s1230-photo-guide__num">02</span>
-            <span class="s1230-photo-guide__req">главное</span>
+            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример: вещь сзади целиком. Фото скоро появится"></span>
           </div>
           <h3 class="s1230-photo-guide__shot-title">Сзади</h3>
-          <p class="s1230-photo-guide__shot-text">Покажите вещь с&nbsp;обратной стороны.</p>
+          <p class="s1230-photo-guide__shot-text">Так же целиком, с&nbsp;обратной стороны.</p>
         </li>
 
         <li class="s1230-photo-guide__shot">
           <div class="s1230-photo-guide__media">
             <!-- <img class="s1230-photo-guide__img" src="URL" alt="Бирка бренда крупным планом, название хорошо читается" loading="lazy"> -->
-            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример: бирка бренда крупным планом. Фото скоро появится">Фото 03</span>
-          </div>
-          <div class="s1230-photo-guide__shot-meta">
-            <span class="s1230-photo-guide__num">03</span>
-            <span class="s1230-photo-guide__req">главное</span>
+            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример: бирка бренда крупным планом. Фото скоро появится"></span>
           </div>
           <h3 class="s1230-photo-guide__shot-title">Бирка бренда</h3>
-          <p class="s1230-photo-guide__shot-text">Название бренда должно хорошо читаться.</p>
+          <p class="s1230-photo-guide__shot-text">Так, чтобы читалось название.</p>
         </li>
 
         <li class="s1230-photo-guide__shot">
           <div class="s1230-photo-guide__media">
             <!-- <img class="s1230-photo-guide__img" src="URL" alt="Внутренняя бирка с размером и составом крупным планом" loading="lazy"> -->
-            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример: внутренняя бирка с размером и составом. Фото скоро появится">Фото 04</span>
-          </div>
-          <div class="s1230-photo-guide__shot-meta">
-            <span class="s1230-photo-guide__num">04</span>
-            <span class="s1230-photo-guide__req">главное</span>
+            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример: внутренняя бирка с размером и составом. Фото скоро появится"></span>
           </div>
           <h3 class="s1230-photo-guide__shot-title">Размер и состав</h3>
-          <p class="s1230-photo-guide__shot-text">Сфотографируйте внутреннюю бирку крупно.</p>
+          <p class="s1230-photo-guide__shot-text">Внутренняя бирка крупным планом.</p>
         </li>
 
         <li class="s1230-photo-guide__shot">
           <div class="s1230-photo-guide__media">
             <!-- <img class="s1230-photo-guide__img" src="URL" alt="Детали вещи крупным планом: фурнитура и фактура" loading="lazy"> -->
-            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример: детали вещи крупным планом. Фото скоро появится">Фото 05</span>
-          </div>
-          <div class="s1230-photo-guide__shot-meta">
-            <span class="s1230-photo-guide__num">05</span>
-            <span class="s1230-photo-guide__req">по желанию</span>
+            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример: детали вещи крупным планом. Фото скоро появится"></span>
           </div>
           <h3 class="s1230-photo-guide__shot-title">Детали</h3>
-          <p class="s1230-photo-guide__shot-text">Фурнитура, принт, фактура или другие особенности.</p>
+          <p class="s1230-photo-guide__shot-text">Фурнитура, принт, фактура. По&nbsp;желанию.</p>
         </li>
 
         <li class="s1230-photo-guide__shot">
           <div class="s1230-photo-guide__media">
             <!-- <img class="s1230-photo-guide__img" src="URL" alt="Следы носки крупным планом: потёртость на ткани" loading="lazy"> -->
-            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример: следы носки крупным планом. Фото скоро появится">Фото 06</span>
-          </div>
-          <div class="s1230-photo-guide__shot-meta">
-            <span class="s1230-photo-guide__num">06</span>
-            <span class="s1230-photo-guide__req">если есть</span>
+            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример: следы носки крупным планом. Фото скоро появится"></span>
           </div>
           <h3 class="s1230-photo-guide__shot-title">Следы носки</h3>
-          <p class="s1230-photo-guide__shot-text">Пятна, потёртости, затяжки. Так оценка будет точнее.</p>
+          <p class="s1230-photo-guide__shot-text">Пятна, потёртости, затяжки, если они есть.</p>
         </li>
       </ul>
 
@@ -739,32 +594,20 @@
 
       <ul class="s1230-photo-guide__list s1230-photo-guide__rules">
         <li class="s1230-photo-guide__rule">
-          <span class="s1230-photo-guide__num">01</span>
-          <div>
-            <h3 class="s1230-photo-guide__rule-title">Дневной свет</h3>
-            <p class="s1230-photo-guide__rule-text">Лучше у&nbsp;окна и&nbsp;без вспышки.</p>
-          </div>
+          <h3 class="s1230-photo-guide__rule-title">Дневной свет</h3>
+          <p class="s1230-photo-guide__rule-text">Лучше у&nbsp;окна и&nbsp;без вспышки.</p>
         </li>
         <li class="s1230-photo-guide__rule">
-          <span class="s1230-photo-guide__num">02</span>
-          <div>
-            <h3 class="s1230-photo-guide__rule-title">Спокойный фон</h3>
-            <p class="s1230-photo-guide__rule-text">Подойдёт однотонная стена, пол или ткань.</p>
-          </div>
+          <h3 class="s1230-photo-guide__rule-title">Спокойный фон</h3>
+          <p class="s1230-photo-guide__rule-text">Подойдёт однотонная стена, пол или ткань.</p>
         </li>
         <li class="s1230-photo-guide__rule">
-          <span class="s1230-photo-guide__num">03</span>
-          <div>
-            <h3 class="s1230-photo-guide__rule-title">Вещь целиком</h3>
-            <p class="s1230-photo-guide__rule-text">Старайтесь не обрезать края.</p>
-          </div>
+          <h3 class="s1230-photo-guide__rule-title">Вещь целиком</h3>
+          <p class="s1230-photo-guide__rule-text">Старайтесь не обрезать края.</p>
         </li>
         <li class="s1230-photo-guide__rule">
-          <span class="s1230-photo-guide__num">04</span>
-          <div>
-            <h3 class="s1230-photo-guide__rule-title">Без фильтров</h3>
-            <p class="s1230-photo-guide__rule-text">Нам важно видеть настоящий цвет вещи.</p>
-          </div>
+          <h3 class="s1230-photo-guide__rule-title">Без фильтров</h3>
+          <p class="s1230-photo-guide__rule-text">Нам важно видеть настоящий цвет вещи.</p>
         </li>
       </ul>
 
@@ -773,17 +616,17 @@
           <p class="s1230-photo-guide__verdict">Так</p>
           <div class="s1230-photo-guide__media">
             <!-- <img class="s1230-photo-guide__img" src="URL" alt="Правильно: вещь целиком при дневном свете на однотонном фоне" loading="lazy"> -->
-            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример правильного фото. Фото скоро появится">Пример · Так</span>
+            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример правильного фото. Фото скоро появится"></span>
           </div>
-          <figcaption class="s1230-photo-guide__example-caption">Дневной свет · спокойный фон · вещь полностью в&nbsp;кадре</figcaption>
+          <figcaption class="s1230-photo-guide__example-caption">Дневной свет, спокойный фон, вещь целиком.</figcaption>
         </figure>
         <figure class="s1230-photo-guide__example">
           <p class="s1230-photo-guide__verdict"><span class="s1230-photo-guide__verdict-mark" aria-hidden="true">×</span>Не так</p>
           <div class="s1230-photo-guide__media">
             <!-- <img class="s1230-photo-guide__img" src="URL" alt="Неправильно: жёлтый свет, пёстрый фон, часть вещи обрезана" loading="lazy"> -->
-            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример неправильного фото. Фото скоро появится">Пример · Не так</span>
+            <span class="s1230-photo-guide__placeholder" role="img" aria-label="Пример неправильного фото. Фото скоро появится"></span>
           </div>
-          <figcaption class="s1230-photo-guide__example-caption">Жёлтый свет · сложный фон · часть вещи обрезана</figcaption>
+          <figcaption class="s1230-photo-guide__example-caption">Жёлтый свет, пёстрый фон, часть вещи не&nbsp;влезла.</figcaption>
         </figure>
       </div>
     </section>
@@ -791,16 +634,11 @@
     <!-- 5. Финал -->
     <section class="s1230-photo-guide__section" aria-labelledby="s1230-pg-final">
       <h2 class="s1230-photo-guide__h2" id="s1230-pg-final">Готово? Возвращайтесь к&nbsp;заявке</h2>
-      <ul class="s1230-photo-guide__list s1230-photo-guide__checklist" aria-label="Главные кадры">
-        <li>Спереди</li>
-        <li>Сзади</li>
-        <li>Бирка бренда</li>
-        <li>Размер и состав</li>
-      </ul>
-      <p class="s1230-photo-guide__final-text">Нет бирки или не всё получилось&nbsp;— всё равно отправляйте заявку. При необходимости мы уточним детали.</p>
+      <p class="s1230-photo-guide__final-text">Самое важное: вещь спереди и&nbsp;сзади, бирка бренда, размер и&nbsp;состав.</p>
+      <p class="s1230-photo-guide__final-text">Нет бирки или не&nbsp;всё получилось? Всё равно отправляйте заявку. Если чего-то не&nbsp;хватит, мы спросим.</p>
       <a class="s1230-photo-guide__button" href="#" data-s1230-back>Вернуться к заявке</a>
       <!-- Показывается скриптом, только если гайд открыт из формы в новой вкладке -->
-      <p class="s1230-photo-guide__tab-note" data-s1230-tab-note hidden>Заявка осталась открытой в&nbsp;соседней вкладке&nbsp;— всё, что вы заполнили, на&nbsp;месте.</p>
+      <p class="s1230-photo-guide__tab-note" data-s1230-tab-note hidden>Заявка открыта в&nbsp;соседней вкладке, всё заполненное на&nbsp;месте.</p>
     </section>
 
   </div>
