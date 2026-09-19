@@ -6,8 +6,8 @@
 
   Настройка:
     1. URL страницы с формой заявки — константа FORM_URL в скрипте в конце файла (блок «НАСТРОЙКА»).
-    2. Фотографии лежат в assets/. В Tilda относительные пути не работают:
-       загрузите файлы на сайт и замените src у каждого .s1230-photo-guide__img на полный URL.
+    2. Изображения подключены по абсолютным URL с Tilda CDN (static.tildacdn.com).
+       Исходные PNG — assets/, web-версии (WebP) — assets/web/.
 
   Удаление: удалить блок T123. Компонент не трогает глобальные стили и переменные сайта.
 -->
@@ -513,7 +513,7 @@
 <div class="s1230-photo-guide" lang="ru">
   <div class="s1230-photo-guide__inner">
 
-    <a class="s1230-photo-guide__back" href="#" data-s1230-back>
+    <a class="s1230-photo-guide__back" href="https://12-30.ru/applicationform" data-s1230-back>
       <span aria-hidden="true">←</span>
       <span>Вернуться к заявке</span>
     </a>
@@ -532,7 +532,7 @@
       <ul class="s1230-photo-guide__list s1230-photo-guide__shots s1230-photo-guide__shots--main">
         <li class="s1230-photo-guide__shot">
           <div class="s1230-photo-guide__media">
-            <img class="s1230-photo-guide__img" src="assets/01-front.png" alt="Юбка с пайетками спереди на вешалке, целиком в кадре" loading="lazy" decoding="async">
+            <img class="s1230-photo-guide__img" src="https://static.tildacdn.com/tild6361-6235-4135-b032-396133363735/01-front.webp" alt="Юбка с пайетками спереди на вешалке, целиком в кадре" loading="lazy" decoding="async">
           </div>
           <div class="s1230-photo-guide__shot-body">
             <h3 class="s1230-photo-guide__shot-title">Спереди</h3>
@@ -542,7 +542,7 @@
 
         <li class="s1230-photo-guide__shot">
           <div class="s1230-photo-guide__media">
-            <img class="s1230-photo-guide__img" src="assets/02-back.png" alt="Та же юбка сзади, по центру пояса видна молния" loading="lazy" decoding="async">
+            <img class="s1230-photo-guide__img" src="https://static.tildacdn.com/tild3966-6430-4464-b332-306230353566/02-back.webp" alt="Та же юбка сзади, по центру пояса видна молния" loading="lazy" decoding="async">
           </div>
           <div class="s1230-photo-guide__shot-body">
             <h3 class="s1230-photo-guide__shot-title">Сзади</h3>
@@ -555,7 +555,7 @@
       <ul class="s1230-photo-guide__list s1230-photo-guide__shots s1230-photo-guide__shots--details">
         <li class="s1230-photo-guide__shot">
           <div class="s1230-photo-guide__media">
-            <img class="s1230-photo-guide__img s1230-photo-guide__img--brand" src="assets/03-brand.png" alt="Бирка бренда Zara на подкладке юбки крупным планом" loading="lazy" decoding="async">
+            <img class="s1230-photo-guide__img s1230-photo-guide__img--brand" src="https://static.tildacdn.com/tild6538-3838-4135-b534-303261353765/03-brand.webp" alt="Бирка бренда Zara на подкладке юбки крупным планом" loading="lazy" decoding="async">
           </div>
           <div class="s1230-photo-guide__shot-body">
             <h3 class="s1230-photo-guide__shot-title">Бирка бренда</h3>
@@ -565,7 +565,7 @@
 
         <li class="s1230-photo-guide__shot">
           <div class="s1230-photo-guide__media">
-            <img class="s1230-photo-guide__img s1230-photo-guide__img--care" src="assets/04-care.png" alt="Бирка с размером и составом: EUR S, 100% полиэстер" loading="lazy" decoding="async">
+            <img class="s1230-photo-guide__img s1230-photo-guide__img--care" src="https://static.tildacdn.com/tild6231-6137-4335-a362-376330353437/04-care.webp" alt="Бирка с размером и составом: EUR S, 100% полиэстер" loading="lazy" decoding="async">
           </div>
           <div class="s1230-photo-guide__shot-body">
             <h3 class="s1230-photo-guide__shot-title">Размер и состав</h3>
@@ -575,7 +575,7 @@
 
         <li class="s1230-photo-guide__shot">
           <div class="s1230-photo-guide__media">
-            <img class="s1230-photo-guide__img" src="assets/05-detail.png" alt="Пайетки и кружевная основа юбки крупным планом" loading="lazy" decoding="async">
+            <img class="s1230-photo-guide__img" src="https://static.tildacdn.com/tild3532-3839-4361-a638-663837326438/05-detail.webp" alt="Пайетки и кружевная основа юбки крупным планом" loading="lazy" decoding="async">
           </div>
           <div class="s1230-photo-guide__shot-body">
             <h3 class="s1230-photo-guide__shot-title">Детали</h3>
@@ -585,7 +585,7 @@
 
         <li class="s1230-photo-guide__shot">
           <div class="s1230-photo-guide__media">
-            <img class="s1230-photo-guide__img s1230-photo-guide__img--wear" src="assets/06-wear.png" alt="Небольшая затяжка на подкладке юбки" loading="lazy" decoding="async">
+            <img class="s1230-photo-guide__img s1230-photo-guide__img--wear" src="https://static.tildacdn.com/tild3130-6639-4132-b661-343737343762/06-wear.webp" alt="Небольшая затяжка на подкладке юбки" loading="lazy" decoding="async">
           </div>
           <div class="s1230-photo-guide__shot-body">
             <h3 class="s1230-photo-guide__shot-title">Следы носки</h3>
@@ -641,14 +641,14 @@
         <figure class="s1230-photo-guide__example">
           <p class="s1230-photo-guide__verdict">Так</p>
           <div class="s1230-photo-guide__media">
-            <img class="s1230-photo-guide__img" src="assets/01-front.png" alt="Так: юбка целиком на вешалке при дневном свете, на спокойном фоне" loading="lazy" decoding="async">
+            <img class="s1230-photo-guide__img" src="https://static.tildacdn.com/tild6361-6235-4135-b032-396133363735/01-front.webp" alt="Так: юбка целиком на вешалке при дневном свете, на спокойном фоне" loading="lazy" decoding="async">
           </div>
           <figcaption class="s1230-photo-guide__example-caption">Дневной свет, спокойный фон, вещь целиком</figcaption>
         </figure>
         <figure class="s1230-photo-guide__example">
           <p class="s1230-photo-guide__verdict"><span class="s1230-photo-guide__verdict-mark" aria-hidden="true">×</span>Не так</p>
           <div class="s1230-photo-guide__media">
-            <img class="s1230-photo-guide__img" src="assets/07-bad.png" alt="Не так: юбка на пёстром покрывале при жёлтом свете, низ не попал в кадр" loading="lazy" decoding="async">
+            <img class="s1230-photo-guide__img" src="https://static.tildacdn.com/tild3832-3837-4039-b832-376464613265/07-bad.webp" alt="Не так: юбка на пёстром покрывале при жёлтом свете, низ не попал в кадр" loading="lazy" decoding="async">
           </div>
           <figcaption class="s1230-photo-guide__example-caption">Жёлтый свет, пёстрый фон, часть вещи не&nbsp;влезла</figcaption>
         </figure>
@@ -660,7 +660,7 @@
       <h2 class="s1230-photo-guide__h2" id="s1230-pg-final">Готово? Возвращайтесь к&nbsp;заявке</h2>
       <p class="s1230-photo-guide__final-text">Самое важное: вещь спереди и&nbsp;сзади, бирка бренда, размер и&nbsp;состав.</p>
       <p class="s1230-photo-guide__final-text">Нет бирки или не&nbsp;всё получилось? Всё равно отправляйте заявку. Если чего-то не&nbsp;хватит, мы спросим.</p>
-      <a class="s1230-photo-guide__button" href="#" data-s1230-back>Вернуться к заявке</a>
+      <a class="s1230-photo-guide__button" href="https://12-30.ru/applicationform" data-s1230-back>Вернуться к заявке</a>
       <!-- Показывается скриптом, только если гайд открыт из формы в новой вкладке -->
       <p class="s1230-photo-guide__tab-note" data-s1230-tab-note hidden>Заявка открыта в&nbsp;соседней вкладке, всё заполненное на&nbsp;месте.</p>
     </section>
@@ -672,8 +672,8 @@
   (function () {
     /* ===== НАСТРОЙКА ===== */
     /* URL страницы с формой «Заявка на продажу».
-       Можно указать путь на сайте ('/sell') или полный адрес ('https://…/sell'). */
-    var FORM_URL = '/sell';
+       Можно указать путь на сайте ('/applicationform') или полный адрес. */
+    var FORM_URL = 'https://12-30.ru/applicationform';
     /* ===================== */
 
     var formUrl;
