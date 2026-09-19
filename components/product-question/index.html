@@ -1,0 +1,304 @@
+<!--
+  12:30 · Кнопка «Задать вопрос» в карточке товара (product-question)
+
+  Добавляет вторичное действие рядом с «Купить» в карточке товара магазина
+  Tilda (блок T754, rec797040197). По клику открывает личный Telegram
+  менеджера с заранее подготовленным текстом: название вещи, артикул и
+  постоянная ссылка на товар. Сообщение НЕ отправляется автоматически —
+  покупатель дописывает вопрос и отправляет сам.
+
+  Работает в двух режимах карточки:
+    1. попап поверх /catalogy;
+    2. прямая страница /catalogy/tproduct/...
+
+  ГДЕ ПОДКЛЮЧАТЬ
+    Настройки сайта → Ещё → HTML-код для вставки внутрь HEAD.
+    Блок T123 на /catalogy НЕ подходит: на прямых страницах товара блоки
+    этой страницы не рендерятся, там есть только меню и корзина.
+    Вне карточки товара компонент не делает ничего.
+
+  ЧЕГО НЕ ТРОГАЕТ
+    кнопку «Купить» и её обработчики, избранное, корзину, оплату,
+    разметку и скрипты Tilda, другие блоки и страницы сайта.
+
+  Настройка — блок «НАСТРОЙКА» в скрипте ниже.
+  Удаление: убрать этот код из настроек сайта. Карточка вернётся к исходному виду.
+-->
+<style>
+  /* Группа действий: «Купить» и «Задать вопрос» одной ширины, избранное —
+     отдельным кругом рядом. Правила действуют только когда компонент вставил
+     свою кнопку: без него разметка Tilda остаётся нетронутой. */
+  .t-store__prod-popup__btn-wrapper.s1230-pq-host {
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  /* Обе основные кнопки делят строку поровну. Потолок 150px держит
+     desktop в нужном диапазоне, на узких экранах ширина считается сама.
+     Селектор намеренно длинный: Tilda задаёт кнопке «Купить»
+     flex-grow: 1 правилом a.t-store__prod-popup__btn[href="#order"]
+     в медиазапросе до 480px, и перебить его можно только специфичностью. */
+  .t-store__prod-popup__btn-wrapper.s1230-pq-host a.t-store__prod-popup__btn,
+  .t-store__prod-popup__btn-wrapper.s1230-pq-host .s1230-pq-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 150px;
+    margin: 0;
+    /* Одинаковые горизонтальные поля обязательны: при flex-basis: 0 поля
+       прибавляются поверх равной доли, и разные поля дают разную ширину.
+       Вертикальные не трогаем — высота задаётся min-height и stretch. */
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  /* Рамка прибавляется к ширине так же, как поля. У «Задать вопрос» она есть,
+     у «Купить» нет — выдаём «Купить» прозрачную той же толщины, только по
+     бокам, чтобы не выросла высота. Визуально ничего не меняется:
+     фон кнопки заходит под рамку. */
+  .t-store__prod-popup__btn-wrapper.s1230-pq-host a.t-store__prod-popup__btn {
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
+  }
+
+  /* Избранное — в исходном круглом виде, внешний отступ заменён на gap. */
+  .t-store__prod-popup__btn-wrapper.s1230-pq-host .t1002__addBtn {
+    flex: 0 0 auto;
+    margin: 0;
+  }
+
+  .s1230-pq-btn {
+    /* Типографику копируем с кнопки «Купить» в рантайме (см. syncMetrics),
+       значения по умолчанию — на случай, если считать не удалось */
+    font-family: var(--s1230-pq-ff, inherit);
+    font-size: var(--s1230-pq-fs, 14px);
+    font-weight: var(--s1230-pq-fw, 600);
+    letter-spacing: var(--s1230-pq-ls, normal);
+    line-height: var(--s1230-pq-lh, normal);
+    text-transform: var(--s1230-pq-tt, none);
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: stretch;
+    min-height: var(--s1230-pq-h, 45px);
+    margin: 0;
+    padding: 0 8px;
+    border: 1px solid currentColor;
+    border-radius: var(--s1230-pq-radius, 5px);
+    background: transparent;
+    color: var(--s1230-pq-color, #000000);
+    text-align: center;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+  }
+
+  .s1230-pq-btn:hover {
+    background-color: rgba(0, 0, 0, 0.06);
+  }
+
+  .s1230-pq-btn:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+</style>
+
+<script>
+  (function () {
+    /* ===== НАСТРОЙКА ===== */
+    var TG_USERNAME = 'Manager12_30';                      /* получатель, без @ */
+    var BTN_LABEL   = 'Задать вопрос';
+    var GREETING    = 'Здравствуйте! У меня вопрос по этой вещи:';
+    var SKU_PREFIX  = 'Артикул: ';
+    /* ===================== */
+
+    var MARK = 'data-s1230-pq';
+    var INIT_MARK = 'data-s1230-pq-init';
+    var STORE_SEL = '.t-store';
+    var STORE_WAIT_MS = 30000;
+    var storeObserver = null;
+    var WRAP_SEL = '.t-store__prod-popup__btn-wrapper';
+    var BUY_SEL  = '.t-store__prod-popup__btn';
+    /* Контейнер карточки: есть и в попапе, и на прямой странице товара.
+       Плиток каталога внутри нет — поэтому данные берём только отсюда. */
+    var SCOPE_SEL = '.js-store-product, .t-store__prod-popup__info';
+
+    function textIn(scope, sel) {
+      var el = scope && scope.querySelector(sel);
+      if (!el) return '';
+      return (el.textContent || '').replace(/\s+/g, ' ').trim();
+    }
+
+    // Ссылка на конкретную вещь. Берём только адрес вида /tproduct/...,
+    // иначе это общий каталог и подставлять его нельзя.
+    function productUrl() {
+      var href = String(window.location.href).split('#')[0];
+      return href.indexOf('/tproduct/') !== -1 ? href : '';
+    }
+
+    function buildMessage(scope) {
+      var name = textIn(scope, '.js-store-prod-name');
+      if (!name) return '';                      // не знаем вещь — не пишем ничего
+      var sku = textIn(scope, '.js-store-prod-sku');
+      var url = productUrl();
+      var lines = [GREETING, '', name];
+      if (sku) lines.push(SKU_PREFIX + sku);     // артикула может не быть
+      if (url) lines.push('', url);
+      return lines.join('\n');
+    }
+
+    function buildHref(scope) {
+      var msg = buildMessage(scope);
+      var base = 'https://t.me/' + TG_USERNAME;
+      return msg ? base + '?text=' + encodeURIComponent(msg) : base;
+    }
+
+    // Типографику, высоту и скругление берём у «Купить»,
+    // чтобы кнопки стояли в одном ритме и не спорили друг с другом.
+    var METRICS = [
+      ['--s1230-pq-ff', 'fontFamily'],
+      ['--s1230-pq-fs', 'fontSize'],
+      ['--s1230-pq-fw', 'fontWeight'],
+      ['--s1230-pq-ls', 'letterSpacing'],
+      ['--s1230-pq-lh', 'lineHeight'],
+      ['--s1230-pq-tt', 'textTransform'],
+      ['--s1230-pq-radius', 'borderRadius']
+    ];
+
+    function syncMetrics(btn, buy) {
+      if (!buy) return;
+      var h = buy.getBoundingClientRect().height;
+      if (h) btn.style.setProperty('--s1230-pq-h', Math.round(h) + 'px');
+      var cs = window.getComputedStyle(buy);
+      for (var i = 0; i < METRICS.length; i++) {
+        var value = cs[METRICS[i][1]];
+        if (value) btn.style.setProperty(METRICS[i][0], value);
+      }
+    }
+
+    function refresh(btn) {
+      var scope = btn.closest ? btn.closest(SCOPE_SEL) : null;
+      btn.setAttribute('href', buildHref(scope));
+    }
+
+    function enhance(wrapper) {
+      if (!wrapper || wrapper.querySelector('[' + MARK + ']')) return false;
+      var buy = wrapper.querySelector(BUY_SEL);
+      if (!buy) return false;
+      var scope = wrapper.closest(SCOPE_SEL);
+      if (!scope || !textIn(scope, '.js-store-prod-name')) return false;
+
+      var btn = document.createElement('a');
+      btn.className = 's1230-pq-btn';
+      btn.setAttribute(MARK, '1');
+      btn.setAttribute('target', '_blank');
+      btn.setAttribute('rel', 'noopener noreferrer');
+      btn.textContent = BTN_LABEL;
+      btn.setAttribute('href', buildHref(scope));
+
+      // Данные карточки меняются при переходе к другой вещи,
+      // поэтому адрес пересобираем прямо перед переходом.
+      btn.addEventListener('pointerdown', function () { refresh(btn); });
+      btn.addEventListener('focus', function () { refresh(btn); });
+      btn.addEventListener('click', function () { refresh(btn); });
+
+      wrapper.classList.add('s1230-pq-host');
+      buy.parentNode.insertBefore(btn, buy.nextSibling);
+      syncMetrics(btn, buy);
+      return true;
+    }
+
+    function ensure() {
+      var wrapper = document.querySelector(WRAP_SEL);
+      if (!wrapper) return;
+      if (enhance(wrapper)) return;
+      // Карточка переиспользуется при переходе к другой вещи:
+      // держим адрес в разметке актуальным, а не только в момент клика.
+      var existing = wrapper.querySelector('[' + MARK + ']');
+      if (existing) refresh(existing);
+    }
+
+    // Страница магазина? Оба признака отдаёт сервер, они есть уже на DOMContentLoaded:
+    // блок каталога T754 и флаг страницы товара. На остальных страницах сайта
+    // компонент не делает вообще ничего — ни наблюдателей, ни слушателей.
+    function isStorePage() {
+      return !!(document.querySelector(STORE_SEL) ||
+                document.querySelector('[data-record-type="754"]') ||
+                document.querySelector('[data-product-page]'));
+    }
+
+    // Наблюдаем только контейнер магазина, реакция — один querySelector.
+    function armStore() {
+      var host = document.querySelector(STORE_SEL);
+      if (!host) return false;
+
+      ensure();
+
+      if (!window.MutationObserver) return true;
+      if (storeObserver) storeObserver.disconnect();   // ровно один наблюдатель
+      var scheduled = false;
+      storeObserver = new MutationObserver(function () {
+        if (scheduled) return;
+        scheduled = true;
+        window.requestAnimationFrame(function () {
+          scheduled = false;
+          ensure();
+        });
+      });
+      storeObserver.observe(host, { childList: true, subtree: true });
+      return true;
+    }
+
+    // Контейнер магазина приходит с сервера, но если вдруг его ещё нет —
+    // ждём появления, а не выходим навсегда. Ожидание ограничено по времени.
+    function waitForStore() {
+      if (armStore()) return;
+      if (!window.MutationObserver) return;
+      var waiter = new MutationObserver(function () {
+        if (armStore()) waiter.disconnect();
+      });
+      waiter.observe(document.documentElement, { childList: true, subtree: true });
+      window.setTimeout(function () { waiter.disconnect(); }, STORE_WAIT_MS);
+    }
+
+    function start() {
+      // Код подключён дважды — второй раз не вооружаемся.
+      var root = document.documentElement;
+      if (root.getAttribute(INIT_MARK)) return;
+      root.setAttribute(INIT_MARK, '1');
+
+      if (!isStorePage()) return;
+
+      waitForStore();
+
+      // Стили Tilda доезжают не сразу (шрифты, стили блока), а размеры
+      // кнопки «Купить» отличаются на desktop и mobile — пересверяемся.
+      function resync() {
+        var btn = document.querySelector('[' + MARK + ']');
+        if (!btn) return;
+        var wrapper = btn.closest(WRAP_SEL);
+        syncMetrics(btn, wrapper && wrapper.querySelector(BUY_SEL));
+      }
+
+      window.addEventListener('load', resync);
+      window.setTimeout(resync, 1500);
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(resync)['catch'](function () {});
+      }
+
+      var resizeTimer = null;
+      window.addEventListener('resize', function () {
+        window.clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(resync, 200);
+      });
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', start);
+    } else {
+      start();
+    }
+  })();
+</script>
