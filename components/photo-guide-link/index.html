@@ -1,0 +1,159 @@
+<!--
+  12:30 · Ссылка на фотогайд в форме продажи (photo-guide-link)
+
+  Делает подзаголовок поля «Прикрепите фотографии вещи» кликабельной ссылкой
+  на /photo-guide. Вставляется отдельным HTML-блоком T123 на странице
+  /applicationform. Ничего не рендерит сам — только правит подзаголовок поля.
+
+  Что трогает:
+    — только элемент .t-input-subtitle внутри одной группы поля photo
+      (форма form595467296, data-input-lid="1500389371979").
+    Если подзаголовка нет — создаёт его родной разметкой Tilda на штатном месте
+    (между .t-input-title и .t-input-block).
+
+  Чего НЕ трогает:
+    поле загрузки, ключ загрузчика, name="photo", обязательность, обработчики
+    отправки, вебхуки, другие поля и другие формы сайта.
+
+  Настройка — блок «НАСТРОЙКА» в скрипте ниже.
+  Удаление: удалить блок T123. Форма возвращается к исходному виду.
+-->
+<style>
+  .s1230-pgl-link {
+    /* Шрифт, размер и цвет наследуются от подзаголовка Tilda — ничего не переопределяем */
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+    /* Спокойное подчёркивание в покое, плотнее — при наведении */
+    text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+    transition: text-decoration-color 0.15s ease;
+  }
+
+  .s1230-pgl-link:hover,
+  .s1230-pgl-link:focus-visible {
+    text-decoration-color: currentColor;
+  }
+
+  .s1230-pgl-link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  /* Стрелка не должна отрываться от последнего слова */
+  .s1230-pgl-link__arrow {
+    white-space: nowrap;
+  }
+</style>
+
+<div class="s1230-pgl" hidden></div>
+
+<script>
+  (function () {
+    /* ===== НАСТРОЙКА ===== */
+    var FORM_ID    = 'form595467296';          /* форма «Заявка на продажу» */
+    var FIELD_LID  = '1500389371979';          /* data-input-lid поля photo */
+    var FIELD_NAME = 'photo';                  /* data-field-name поля */
+    var GUIDE_URL  = 'https://12-30.ru/photo-guide';
+    var LINK_TEXT  = 'Как сфотографировать вещь?';
+    var ARROW      = '↗';                 /* ↗ */
+    /* ===================== */
+
+    var MARK = 'data-s1230-pgl';
+    var TIMEOUT_MS = 15000;
+
+    function findGroup() {
+      var form = document.getElementById(FORM_ID);
+      if (!form) return null;
+      return form.querySelector(
+        '.t-input-group[data-input-lid="' + FIELD_LID + '"][data-field-name="' + FIELD_NAME + '"]'
+      );
+    }
+
+    // Родная разметка подзаголовка Tilda — берём те же классы, чтобы совпали шрифт и размер.
+    function createSubtitle(group) {
+      var el = document.createElement('div');
+      el.className = 't-input-subtitle t-descr t-descr_xxs t-opacity_70';
+      el.setAttribute('data-redactor-toolbar', 'no');
+      el.setAttribute('field', 'li_subtitle__' + FIELD_LID);
+      el.setAttribute(MARK + '-created', '1');
+      var title = group.querySelector('.t-input-title');
+      var block = group.querySelector('.t-input-block');
+      if (title && title.parentNode === group) group.insertBefore(el, title.nextSibling);
+      else if (block && block.parentNode === group) group.insertBefore(el, block);
+      else return null;
+      return el;
+    }
+
+    function buildLink(text) {
+      var a = document.createElement('a');
+      a.className = 's1230-pgl-link';
+      a.href = GUIDE_URL;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.setAttribute(MARK + '-link', '1');
+      // Стрелку из исходного текста убираем — добавим её своим span'ом.
+      var clean = (text || LINK_TEXT).replace(/\s*↗\s*$/, '').trim() || LINK_TEXT;
+      a.appendChild(document.createTextNode(clean));
+      var arrow = document.createElement('span');
+      arrow.className = 's1230-pgl-link__arrow';
+      arrow.textContent = ' ' + ARROW;
+      a.appendChild(arrow);
+      return a;
+    }
+
+    function apply() {
+      var group = findGroup();
+      if (!group) return false;
+
+      // Уже сделано — выходим. Защита от дублей при повторной инициализации.
+      if (group.querySelector('[' + MARK + '-link]')) return true;
+
+      var subtitle = group.querySelector('.t-input-subtitle');
+
+      // Подзаголовок уже есть в настройках поля — превращаем его текст в ссылку.
+      if (subtitle) {
+        if (subtitle.querySelector('a')) return true; // чужая ссылка — не вмешиваемся
+        var link = buildLink(subtitle.textContent);
+        subtitle.textContent = '';
+        subtitle.appendChild(link);
+        return true;
+      }
+
+      // Подзаголовка нет — создаём родной разметкой Tilda.
+      var created = createSubtitle(group);
+      if (!created) return false;
+      created.appendChild(buildLink(LINK_TEXT));
+      return true;
+    }
+
+    function start() {
+      apply();
+
+      // Поле загрузки асинхронное (data-field-async) — добираем повторами.
+      var started = Date.now();
+      var timer = window.setInterval(function () {
+        var group = findGroup();
+        if ((group && group.querySelector('[' + MARK + '-link]')) || Date.now() - started > TIMEOUT_MS) {
+          window.clearInterval(timer);
+          return;
+        }
+        apply();
+      }, 300);
+
+      // Если Tilda перерисует группу — восстановим ссылку. apply() идемпотентен.
+      var group = findGroup();
+      if (group && window.MutationObserver) {
+        new MutationObserver(function () { apply(); })
+          .observe(group, { childList: true, subtree: true });
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', start);
+    } else {
+      start();
+    }
+    window.addEventListener('load', function () { apply(); });
+  })();
+</script>
