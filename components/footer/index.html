@@ -1,0 +1,312 @@
+<!--
+  12:30 · Подвал сайта (footer)
+
+  Пересобранный подвал по утверждённой структуре 3×3.
+  Заменяет Zero Block T396 (rec796927364) на странице «footer» (page-id 54715903).
+
+  Только HTML и CSS, без JavaScript.
+
+  ССЫЛКИ
+    Как купить                      -> /forbuyers
+    Задать вопрос                   -> https://t.me/Manager12_30  (менеджер, личный диалог)
+    Канал в Telegram                -> https://t.me/store_1230    (публичный канал проекта)
+    Предложить вещь                 -> /applicationform
+    Условия продажи                 -> /forsallers
+    Как сфотографировать вещь       -> /photo-guide
+    О проекте                       -> /aboutus
+    Каталог                         -> /catalogy
+    Отдать вещи на благотворительность -> /media
+
+  УБРАНО по итогам UI/UX-аудита
+    «Полезное» ×2 и дубль «Хочу продать» — мёртвые DIV без ссылок;
+    «Оферта» — соответствующей страницы на сайте нет;
+    admin@12-30.ru — нерабочий адрес, контакт закрывает «Задать вопрос»;
+    «Доставка и оплата» — вёл на ту же /forbuyers, что и «Как купить».
+
+  Сетка: три равные колонки от 768px, ниже — последовательные блоки.
+  Все ссылки имеют зону нажатия не меньше 44px по высоте.
+-->
+<style>
+  /* Скрывает только старый Zero Block подвала (T396, rec796927364).
+     Нужен на время замены: новый и старый подвал не показываются вместе.
+     Блок cookie T972 (rec3537202601) и любые другие блоки не затрагиваются.
+     Удаление этой строки возвращает старый подвал — это и есть откат. */
+  #rec796927364 {
+    display: none !important;
+  }
+
+  .s1230-footer {
+    /* Цвета и типографика сняты с текущего подвала — новых не вводим */
+    --s1230-ft-bg: #e9e9e9;
+    --s1230-ft-text: #000000;
+    --s1230-ft-muted: #232323;
+    --s1230-ft-font: var(--t-text-font, 'Inter', Arial, sans-serif);
+    --s1230-ft-size: 16px;   /* пункты навигации */
+    --s1230-ft-note: 14px;   /* нижняя служебная строка — не меняем */
+
+    box-sizing: border-box;
+    width: 100%;
+    padding: 56px 0 40px;
+    background: var(--s1230-ft-bg);
+    color: var(--s1230-ft-text);
+    font-family: var(--s1230-ft-font);
+    font-size: var(--s1230-ft-size);
+    line-height: 1.4;
+  }
+
+  .s1230-footer *,
+  .s1230-footer *::before,
+  .s1230-footer *::after {
+    box-sizing: border-box;
+  }
+
+  /* Та же сетка, что у контента сайта: .t-container даёт 1200px при 1440
+     (x=120) и 960px при 1024 (x=32). Три колонки читаются единым блоком. */
+  .s1230-footer__inner {
+    max-width: 1264px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* --- логотип --- */
+  /* Верхняя строка: логотип слева, канал справа */
+  .s1230-footer__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 24px;
+    margin: 0 0 32px;
+  }
+
+  /* Вертикальный запас доводит зону нажатия логотипа до 44px.
+     Отрицательные отступы сохраняют визуальное положение. */
+  .s1230-footer__logo {
+    display: inline-block;
+    margin: -8px 0;
+    padding: 8px 0;
+    line-height: 0;
+  }
+
+  .s1230-footer__channel {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    color: var(--s1230-ft-text);
+    font-size: var(--s1230-ft-size);
+    font-weight: 400;
+    text-decoration: none;
+  }
+
+  .s1230-footer__channel-icon {
+    display: block;
+    width: 28px;
+    height: 28px;
+    flex: 0 0 auto;
+  }
+
+  .s1230-footer__channel:hover span {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .s1230-footer__channel:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+  }
+
+  .s1230-footer__logo img {
+    display: block;
+    width: 138px;
+    height: 28px;
+  }
+
+  .s1230-footer__logo:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+  }
+
+  /* --- три колонки --- */
+  .s1230-footer__cols {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    align-items: start;
+  }
+
+  .s1230-footer__col {
+    min-width: 0;
+  }
+
+  /* Заголовки колонок стоят на одной базовой линии: одинаковый размер,
+     интерлиньяж и нижний отступ, сетка выравнивает их по верху. */
+  /* Заметнее обычных пунктов за счёт разрядки прописных,
+     размер и вес относительно ссылок не наращиваем. */
+  .s1230-footer__title {
+    margin: 0 0 12px;
+    font-size: var(--s1230-ft-size);
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.06em;
+    color: var(--s1230-ft-text);
+  }
+
+  .s1230-footer__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Единый вертикальный шаг и зона нажатия 44px на всех ширинах */
+  .s1230-footer__link {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 4px 0;
+    color: var(--s1230-ft-text);
+    font-size: var(--s1230-ft-size);
+    font-weight: 400;
+    text-decoration: none;
+  }
+
+  .s1230-footer__link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .s1230-footer__link:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  /* --- нижняя служебная строка --- */
+  .s1230-footer__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 40px;
+    margin: 40px 0 0;
+    padding: 24px 0 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+  }
+
+  .s1230-footer__note {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    color: var(--s1230-ft-muted);
+    font-size: var(--s1230-ft-note);
+    font-weight: 400;
+    text-decoration: none;
+  }
+
+  .s1230-footer__note:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .s1230-footer__note:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  /* Промежуточные ширины: 15px и более узкие промежутки, иначе
+     «Отдать вещи на благотворительность» не помещается в колонку. */
+  @media screen and (min-width: 768px) and (max-width: 1199px) {
+    .s1230-footer {
+      --s1230-ft-size: 15px;
+    }
+
+    .s1230-footer__cols {
+      gap: 24px;
+    }
+  }
+
+  /* --- узкие экраны: последовательные блоки --- */
+  @media screen and (max-width: 767px) {
+    .s1230-footer {
+      /* Размер пунктов на мобильных оставляем прежним: на 320px
+         «Отдать вещи на благотворительность» при 16px ушло бы в перенос. */
+      --s1230-ft-size: 14px;
+      padding: 40px 0 32px;
+    }
+
+    .s1230-footer__inner {
+      padding: 0 20px;
+    }
+
+    /* Зазор 16px гасит отрицательный отступ логотипа (-8px):
+       зоны нажатия логотипа и канала не соприкасаются. */
+    .s1230-footer__top {
+      justify-content: flex-start;
+      gap: 16px 24px;
+      margin-bottom: 28px;
+    }
+
+    .s1230-footer__cols {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .s1230-footer__bottom {
+      margin-top: 32px;
+      justify-content: flex-start;
+      gap: 0 24px;
+    }
+  }
+</style>
+
+<div class="s1230-footer">
+  <div class="s1230-footer__inner">
+
+    <div class="s1230-footer__top">
+      <a class="s1230-footer__logo" href="/" aria-label="12:30 — на главную">
+        <img src="https://static.tildacdn.com/tild3631-6236-4537-a138-636138656135/1230.svg" alt="12:30" width="138" height="28">
+      </a>
+
+      <!-- Канал, а не менеджер: подпись обязательна, чтобы назначение
+           не путалось с пунктом «Задать вопрос» в колонке ПОКУПАТЕЛЯМ. -->
+      <a class="s1230-footer__channel" href="https://t.me/store_1230" target="_blank" rel="noopener noreferrer">
+        <img class="s1230-footer__channel-icon" src="https://static.tildacdn.com/tild3037-6437-4137-a232-356137396336/Mask_group.svg" alt="" width="28" height="28" aria-hidden="true">
+        <span>Канал в Telegram</span>
+      </a>
+    </div>
+
+    <div class="s1230-footer__cols">
+
+      <div class="s1230-footer__col">
+        <div class="s1230-footer__title">ПОКУПАТЕЛЯМ</div>
+        <ul class="s1230-footer__list">
+          <li><a class="s1230-footer__link" href="/forbuyers">Как купить</a></li>
+          <li><a class="s1230-footer__link" href="https://t.me/Manager12_30" target="_blank" rel="noopener noreferrer">Задать вопрос</a></li>
+        </ul>
+      </div>
+
+      <div class="s1230-footer__col">
+        <div class="s1230-footer__title">ПРОДАВЦАМ</div>
+        <ul class="s1230-footer__list">
+          <li><a class="s1230-footer__link" href="/applicationform">Предложить вещь</a></li>
+          <li><a class="s1230-footer__link" href="/forsallers">Условия продажи</a></li>
+          <li><a class="s1230-footer__link" href="/photo-guide">Как сфотографировать вещь</a></li>
+        </ul>
+      </div>
+
+      <div class="s1230-footer__col">
+        <div class="s1230-footer__title">12:30</div>
+        <ul class="s1230-footer__list">
+          <li><a class="s1230-footer__link" href="/aboutus">О проекте</a></li>
+          <li><a class="s1230-footer__link" href="/catalogy">Каталог</a></li>
+          <li><a class="s1230-footer__link" href="/media">Отдать вещи на благотворительность</a></li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="s1230-footer__bottom">
+      <a class="s1230-footer__note" href="/politikakonfidencialnosti">Политика конфиденциальности</a>
+      <a class="s1230-footer__note" href="https://t.me/arissshiks" target="_blank" rel="noopener noreferrer">Разработка сайта</a>
+    </div>
+
+  </div>
+</div>

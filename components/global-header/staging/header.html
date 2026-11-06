@@ -1,0 +1,508 @@
+<!-- ================= СЛУЖЕБНАЯ ПОЛОСА НАД ШАПКОЙ =================
+     Тонкая белая строка со ссылкой на программу для блогеров и стилистов.
+     Свои классы s1230-ub, без скрипта. Высота полосы (32px / 34px на телефоне)
+     учтена в hero: --s1230-hh-top-offset = шапка + полоса. -->
+<style>
+  .s1230-ub {
+    --s1230-ub-h: 32px;
+    --s1230-ub-gutter: 40px;
+    --s1230-ub-text: #000000;
+    --s1230-ub-bg: #ffffff;
+    --s1230-ub-line: rgba(0, 0, 0, 0.08);
+
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    box-sizing: border-box;
+    height: var(--s1230-ub-h);
+    padding: 0 var(--s1230-ub-gutter);
+    border-bottom: 1px solid var(--s1230-ub-line);
+    background: var(--s1230-ub-bg);
+    font-family: var(--t-text-font, 'Inter', Arial, sans-serif);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .s1230-ub__link {
+    display: inline-flex;
+    align-items: center;
+    height: 100%;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    color: var(--s1230-ub-text);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .s1230-ub__link:hover {
+    color: var(--s1230-ub-text);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 4px;
+  }
+
+  .s1230-ub__link:focus-visible {
+    outline: 1px solid var(--s1230-ub-text);
+    outline-offset: -4px;
+  }
+
+  /* На телефоне — короткая формулировка: длинная не помещается в одну строку */
+  .s1230-ub__text--short {
+    display: none;
+  }
+
+  @media (max-width: 899px) {
+    .s1230-ub {
+      --s1230-ub-h: 34px;
+      --s1230-ub-gutter: 16px;
+    }
+
+    .s1230-ub__text--full {
+      display: none;
+    }
+
+    .s1230-ub__text--short {
+      display: inline;
+    }
+  }
+
+  @media (max-width: 359px) {
+    .s1230-ub__link {
+      font-size: 10px;
+      letter-spacing: 0.06em;
+    }
+  }
+</style>
+
+<div class="s1230-ub">
+  <a class="s1230-ub__link" href="/collaboration">
+    <span class="s1230-ub__text--full">Сотрудничество для блогеров и стилистов →</span>
+    <span class="s1230-ub__text--short">Блогерам и стилистам — сотрудничество →</span>
+  </a>
+</div>
+<!-- ================= /СЛУЖЕБНАЯ ПОЛОСА ================= -->
+
+<!-- ================= ШАПКА САЙТА 12:30 =================
+     Глобальная шапка: один T123 на отдельной Header-странице Tilda, на остальных
+     страницах шапку не вставляем. Свои классы s1230-th, свой скрипт.
+     Логотип — тот же SVG, что в текущей шапке сайта, встроен инлайном.
+     Desktop (от 900px): слева 12:30, по центру НОВИНКИ / КАТАЛОГ / GARAGE SALE,
+     справа О ПРОЕКТЕ / ПРОДАТЬ; меню — в средней колонке сетки 1fr·auto·1fr.
+     «Продать» — кнопка с выпадающим списком из двух сценариев
+     (см. «ВЫПАДАЮЩИЙ СПИСОК „ПРОДАТЬ“» в стилях и разметке).
+     Mobile: 12:30 слева, MENU справа, по нажатию — простой список ссылок. -->
+<style>
+  .s1230-th {
+    --s1230-th-h: 72px;
+    --s1230-th-gutter: 40px;
+    --s1230-th-text: #000000;
+    --s1230-th-bg: #ffffff;
+    --s1230-th-line: rgba(0, 0, 0, 0.08);
+
+    position: relative;
+    z-index: 20;
+    background: var(--s1230-th-bg);
+    color: var(--s1230-th-text);
+    font-family: var(--t-text-font, 'Inter', Arial, sans-serif);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .s1230-th *,
+  .s1230-th *::before,
+  .s1230-th *::after {
+    box-sizing: border-box;
+  }
+
+  .s1230-th__bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    column-gap: 32px;
+    height: var(--s1230-th-h);
+    padding: 0 var(--s1230-th-gutter);
+  }
+
+  /* Фирменный блок: логотип + дескриптор, одна ссылка на главную */
+  .s1230-th__logo {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+    padding: 6px 0;
+    color: var(--s1230-th-text);
+    text-decoration: none;
+  }
+
+  .s1230-th__logo svg {
+    display: block;
+    width: 95px;
+    height: 19px;
+  }
+
+  .s1230-th__descriptor {
+    display: block;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    white-space: nowrap;
+    color: #1a1a1a;
+  }
+
+  /* На desktop списки — прямые ячейки сетки шапки */
+  .s1230-th__nav {
+    display: contents;
+  }
+
+  .s1230-th__list {
+    grid-row: 1;
+    display: flex;
+    gap: 28px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .s1230-th__list--main {
+    grid-column: 2;
+    justify-self: center;
+  }
+
+  .s1230-th__list--side {
+    grid-column: 3;
+    justify-self: end;
+  }
+
+  .s1230-th__item {
+    margin: 0;
+  }
+
+  .s1230-th__link,
+  .s1230-th__menu-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    color: var(--s1230-th-text);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Та же тонкая линия, что у переключателей hero — только при наведении */
+  .s1230-th__link::after,
+  .s1230-th__menu-button::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0.1em;
+    bottom: 12px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 300ms ease;
+  }
+
+  .s1230-th__link:hover,
+  .s1230-th__menu-button:hover {
+    color: var(--s1230-th-text);
+  }
+
+  .s1230-th__link:hover::after,
+  .s1230-th__menu-button:hover::after,
+  .s1230-th__menu-button[aria-expanded="true"]::after {
+    transform: scaleX(1);
+  }
+
+  .s1230-th__logo:focus-visible,
+  .s1230-th__link:focus-visible,
+  .s1230-th__menu-button:focus-visible {
+    outline: 1px solid var(--s1230-th-text);
+    outline-offset: 4px;
+  }
+
+  .s1230-th__menu-button {
+    display: none;
+  }
+
+  /* ---------- ВЫПАДАЮЩИЙ СПИСОК «ПРОДАТЬ» ----------
+     Кнопка выглядит как обычный пункт шапки. Список — белая плашка с тонкой
+     границей прямо под пунктом, без тени, скруглений и иконок. */
+  .s1230-th__sell {
+    position: relative;
+  }
+
+  .s1230-th__sell-toggle[aria-expanded="true"]::after {
+    transform: scaleX(1);
+  }
+
+  .s1230-th__sell-panel {
+    display: none;
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 2px);
+    right: 0;
+    width: 320px;
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    background: var(--s1230-th-bg);
+  }
+
+  .s1230-th__sell.is-open .s1230-th__sell-panel {
+    display: block;
+  }
+
+  .s1230-th__sell-option {
+    display: block;
+    padding: 16px 20px 17px;
+    color: var(--s1230-th-text);
+    text-decoration: none;
+    transition: background-color 150ms ease;
+  }
+
+  .s1230-th__sell-option + .s1230-th__sell-option {
+    border-top: 1px solid var(--s1230-th-line);
+  }
+
+  .s1230-th__sell-option:hover {
+    color: var(--s1230-th-text);
+    background: #f4f4f2;
+  }
+
+  .s1230-th__sell-option:focus-visible {
+    outline: 1px solid var(--s1230-th-text);
+    outline-offset: -4px;
+  }
+
+  .s1230-th__sell-title {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .s1230-th__sell-note {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    letter-spacing: 0;
+    text-transform: none;
+    color: rgba(0, 0, 0, 0.58);
+  }
+
+  @media (max-width: 899px) {
+    .s1230-th {
+      --s1230-th-h: 60px;
+      --s1230-th-gutter: 16px;
+    }
+
+    .s1230-th__bar {
+      grid-template-columns: 1fr auto;
+    }
+
+    .s1230-th__logo {
+      grid-column: 1;
+      justify-self: start;
+    }
+
+    .s1230-th__logo {
+      gap: 6px;
+    }
+
+    .s1230-th__logo svg {
+      width: 88px;
+      height: 17.6px;
+    }
+
+    .s1230-th__menu-button {
+      grid-column: 2;
+      grid-row: 1;
+      display: inline-flex;
+    }
+
+    /* Меню — простой белый список под шапкой, поверх hero */
+    .s1230-th__nav {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      padding: 4px var(--s1230-th-gutter) 16px;
+      border-top: 1px solid var(--s1230-th-line);
+      border-bottom: 1px solid var(--s1230-th-line);
+      background: var(--s1230-th-bg);
+    }
+
+    .s1230-th.is-open .s1230-th__nav {
+      display: block;
+    }
+
+    .s1230-th__list {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .s1230-th__list--main,
+    .s1230-th__list--side {
+      justify-self: stretch;
+    }
+
+    .s1230-th__link {
+      display: flex;
+      width: 100%;
+      min-height: 48px;
+      font-size: 15px;
+    }
+
+    .s1230-th__link::after {
+      display: none;
+    }
+
+    /* «Продать» в мобильном меню раскрывает те же два сценария прямо в списке */
+    .s1230-th__sell-panel {
+      position: static;
+      width: auto;
+      border: 0;
+      border-left: 1px solid rgba(0, 0, 0, 0.14);
+      margin: 0 0 8px;
+    }
+
+    .s1230-th__sell-option {
+      padding: 12px 0 13px 16px;
+    }
+
+    .s1230-th__sell-option + .s1230-th__sell-option {
+      border-top: 0;
+    }
+
+    .s1230-th__sell-title {
+      font-size: 14px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .s1230-th__link::after,
+    .s1230-th__menu-button::after {
+      transition: none;
+    }
+  }
+</style>
+
+<header class="s1230-th" data-s1230-th>
+  <div class="s1230-th__bar">
+    <a class="s1230-th__logo" href="/" aria-label="12:30, ресейл-платформа — на главную">
+      <svg viewBox="0 0 115 23" aria-hidden="true" focusable="false">
+        <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M0 2.34811V4.69622H2.21154H4.42308V11.4796V18.2631H2.21154H0V20.6112V22.9593H7.1875H14.375V20.6112V18.2631H12.2226C10.7702 18.2631 9.96132 17.9949 9.73464 17.4376C9.54998 16.9836 9.39904 12.8744 9.39904 8.30605V0H4.69952H0V2.34811ZM23.774 2.34811V4.69622H30.9615H38.149V6.78343V8.87064H33.4495H28.75V11.2187V13.5669H26.262H23.774V18.2631V22.9593H33.4495H43.125V20.6112V18.2631H35.9375H28.75V16.1759V14.0887H33.4495H38.149V11.7406V9.39244H40.637H43.125V7.04433V4.69622H40.637H38.149V2.34811V0H30.9615H23.774V2.34811ZM66.899 2.34811V4.69622H74.0865H81.274V6.76308V8.82994L76.4363 8.98074L71.5986 9.13154V11.4796V13.8278L76.4684 13.9791L81.3382 14.1304L81.1679 16.0663L80.9976 18.0022L73.9483 18.1483L66.899 18.2944V20.6268V22.9593H74.0865H81.274V20.6112V18.2631H83.762H86.25V15.915V13.5669H83.762H81.274V11.4796V9.39244H83.762H86.25V7.04433V4.69622H83.762H81.274V2.34811V0H74.0865H66.899V2.34811ZM100.441 0.348042C100.238 0.539022 100.072 1.59567 100.072 2.69615C100.072 4.68161 100.056 4.69622 97.8606 4.69622H95.649V11.4796V18.2631H97.8291C99.998 18.2631 100.009 18.274 100.179 20.4807L100.349 22.6984L105.186 22.8492L110.024 23V20.6315V18.2631H112.512H115V11.4796V4.69622H112.512H110.024V2.34811V0H105.417C102.882 0 100.643 0.156541 100.441 0.348042ZM52.524 7.04433V9.39244H55.012H57.5V7.04433V4.69622H55.012H52.524V7.04433ZM100.625 11.4796V17.7413H105.325H110.024V11.4796V5.21802H105.325H100.625V11.4796ZM52.524 15.915V18.2631H55.012H57.5V15.915V13.5669H55.012H52.524V15.915Z"/>
+      </svg>
+      <span class="s1230-th__descriptor">ресейл-платформа</span>
+    </a>
+
+    <button class="s1230-th__menu-button" type="button" aria-expanded="false" aria-controls="s1230-th-nav">Menu</button>
+
+    <nav class="s1230-th__nav" id="s1230-th-nav" aria-label="Основная навигация">
+      <ul class="s1230-th__list s1230-th__list--main">
+        <li class="s1230-th__item"><a class="s1230-th__link" href="/catalogy?tfc_storepartuid%5B797040197%5D=%D0%9D%D0%BE%D0%B2%D0%B8%D0%BD%D0%BA%D0%B8&amp;tfc_div=:::">Новинки</a></li>
+        <li class="s1230-th__item"><a class="s1230-th__link" href="/catalogy">Каталог</a></li>
+        <li class="s1230-th__item"><a class="s1230-th__link" href="/garage-sale">Garage sale</a></li>
+      </ul>
+      <ul class="s1230-th__list s1230-th__list--side">
+        <li class="s1230-th__item"><a class="s1230-th__link" href="/aboutus">О проекте</a></li>
+        <li class="s1230-th__item s1230-th__sell">
+          <button class="s1230-th__link s1230-th__sell-toggle" type="button" aria-expanded="false" aria-controls="s1230-th-sell">Хочу продать</button>
+          <div class="s1230-th__sell-panel" id="s1230-th-sell">
+            <a class="s1230-th__sell-option" href="https://12-30.ru/applicationform">
+              <span class="s1230-th__sell-title">Продать свои вещи</span>
+              <span class="s1230-th__sell-note">Для частных продавцов</span>
+            </a>
+            <a class="s1230-th__sell-option" href="https://12-30.ru/collaboration">
+              <span class="s1230-th__sell-title">Блогерам и стилистам</span>
+              <span class="s1230-th__sell-note">Специальные условия</span>
+            </a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  (function () {
+    var root = document.querySelector('[data-s1230-th]');
+    if (!root || root.getAttribute('data-s1230-th-ready')) return;
+    root.setAttribute('data-s1230-th-ready', '1');
+
+    var button = root.querySelector('.s1230-th__menu-button');
+    var desktop = window.matchMedia('(min-width: 900px)');
+
+    var sell = root.querySelector('.s1230-th__sell');
+    var sellToggle = root.querySelector('.s1230-th__sell-toggle');
+
+    function setSell(open) {
+      sell.classList.toggle('is-open', open);
+      sellToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    function setOpen(open) {
+      root.classList.toggle('is-open', open);
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (!open) setSell(false);
+    }
+
+    sellToggle.addEventListener('click', function () {
+      setSell(!sell.classList.contains('is-open'));
+    });
+
+    button.addEventListener('click', function () {
+      setOpen(!root.classList.contains('is-open'));
+    });
+
+    root.addEventListener('click', function (e) {
+      if (e.target.closest('a.s1230-th__link, a.s1230-th__sell-option')) setOpen(false);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (sell.classList.contains('is-open')) {
+        setSell(false);
+        sellToggle.focus();
+      } else if (root.classList.contains('is-open')) {
+        setOpen(false);
+        button.focus();
+      }
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!sell.contains(e.target)) setSell(false);
+      if (root.classList.contains('is-open') && !root.contains(e.target)) setOpen(false);
+    });
+
+    var onChange = function () { setSell(false); if (desktop.matches) setOpen(false); };
+    if (desktop.addEventListener) desktop.addEventListener('change', onChange);
+    else desktop.addListener(onChange);
+  })();
+</script>
+<!-- ================= /ШАПКА САЙТА ================= -->

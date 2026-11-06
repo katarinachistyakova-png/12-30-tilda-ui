@@ -1,0 +1,1164 @@
+<!--
+  12:30 · Главный экран (home-hero) — ПРОТОТИП, A/B-ВАРИАНТ «ИЗ ЛЮБОПЫТСТВА»
+
+  Полная копия index.html. Единственное отличие — слова заголовка:
+  «Из любопытства» вместо «Свобода меняться». Позиция, типографика и всё
+  остальное совпадают. При правках index.html этот файл нужно пересобрать.
+
+  Эксперимент для новой главной. Не опубликован, в Tilda не вставлен.
+  Основа — вариант A. Два уровня выбора:
+    1) раздел — WOMEN / MEN (меняется персонаж);
+    2) образ внутри раздела — CASUAL / EVENING / SPORT / SPORT STYLE (меняется образ).
+  Пользователь сам переключает, картинки сменяются мягким crossfade.
+  Ниже — тестовая полоса из 4 карточек-заглушек (не Tilda Store).
+  Над hero — ТЕСТОВАЯ шапка (отдельный блок s1230-th), чтобы оценить первый экран целиком.
+
+  НАСТРОЙКА — одно место: объект CONFIG в скрипте в конце файла.
+    Там названия разделов и образов, их порядок, пути к картинкам и фон раздела.
+    HTML и CSS от конкретных названий не зависят.
+
+  Кадры одной серии: 1536×1024, фигура по центру, макушка ~3%, ступни ~92–94% высоты.
+  Новые картинки должны повторять эту геометрию — тогда персонаж не «прыгает».
+
+  Удаление: удалить блок T123. Глобальные стили сайта не затрагиваются.
+-->
+
+<meta charset="utf-8">
+<!-- ТОЛЬКО ДЛЯ ЛОКАЛЬНОГО ПРОСМОТРА. Перед вставкой в Tilda удалить: там шрифты
+     уже подключены, а отступы body задаёт сама Tilda. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Oswald:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body { margin: 0; }</style>
+<!-- /ТОЛЬКО ДЛЯ ЛОКАЛЬНОГО ПРОСМОТРА -->
+
+<!-- ================= ТЕСТОВАЯ ШАПКА (только для прототипа) =================
+     Проверка первого экрана целиком: шапка + hero.
+     Это НЕ замена шапки Tilda и не production-компонент. Отдельный независимый блок:
+     свои классы s1230-th, свой скрипт; удаляется целиком от этого комментария
+     до «/ТЕСТОВАЯ ШАПКА», hero от него не зависит.
+     Логотип — тот же SVG, что в текущей шапке сайта (1230.svg с Tilda CDN), встроен инлайном.
+     Desktop (от 900px): слева 12:30, по центру НОВИНКИ / КАТАЛОГ / GARAGE SALE,
+     справа О ПРОЕКТЕ / ПРОДАТЬ. Основное меню стоит в средней колонке сетки
+     1fr·auto·1fr — боковые колонки равны, поэтому меню по центру экрана,
+     а не между логотипом и правыми ссылками.
+     Mobile: 12:30 слева, MENU справа, по нажатию — простой список ссылок. -->
+<style>
+  .s1230-th {
+    --s1230-th-h: 72px;
+    --s1230-th-gutter: 40px;
+    --s1230-th-text: #000000;
+    --s1230-th-bg: #ffffff;
+    --s1230-th-line: rgba(0, 0, 0, 0.08);
+
+    position: relative;
+    z-index: 20;
+    background: var(--s1230-th-bg);
+    color: var(--s1230-th-text);
+    font-family: var(--t-text-font, 'Inter', Arial, sans-serif);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .s1230-th *,
+  .s1230-th *::before,
+  .s1230-th *::after {
+    box-sizing: border-box;
+  }
+
+  .s1230-th__bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    column-gap: 32px;
+    height: var(--s1230-th-h);
+    padding: 0 var(--s1230-th-gutter);
+  }
+
+  /* Фирменный блок: логотип + дескриптор, одна ссылка на главную */
+  .s1230-th__logo {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+    padding: 6px 0;
+    color: var(--s1230-th-text);
+    text-decoration: none;
+  }
+
+  .s1230-th__logo svg {
+    display: block;
+    width: 95px;
+    height: 19px;
+  }
+
+  .s1230-th__descriptor {
+    display: block;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    white-space: nowrap;
+    color: #1a1a1a;
+  }
+
+  /* На desktop списки — прямые ячейки сетки шапки */
+  .s1230-th__nav {
+    display: contents;
+  }
+
+  .s1230-th__list {
+    grid-row: 1;
+    display: flex;
+    gap: 28px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .s1230-th__list--main {
+    grid-column: 2;
+    justify-self: center;
+  }
+
+  .s1230-th__list--side {
+    grid-column: 3;
+    justify-self: end;
+  }
+
+  .s1230-th__item {
+    margin: 0;
+  }
+
+  .s1230-th__link,
+  .s1230-th__menu-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    color: var(--s1230-th-text);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Та же тонкая линия, что у переключателей hero — только при наведении */
+  .s1230-th__link::after,
+  .s1230-th__menu-button::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0.1em;
+    bottom: 12px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 300ms ease;
+  }
+
+  .s1230-th__link:hover,
+  .s1230-th__menu-button:hover {
+    color: var(--s1230-th-text);
+  }
+
+  .s1230-th__link:hover::after,
+  .s1230-th__menu-button:hover::after,
+  .s1230-th__menu-button[aria-expanded="true"]::after {
+    transform: scaleX(1);
+  }
+
+  .s1230-th__logo:focus-visible,
+  .s1230-th__link:focus-visible,
+  .s1230-th__menu-button:focus-visible {
+    outline: 1px solid var(--s1230-th-text);
+    outline-offset: 4px;
+  }
+
+  .s1230-th__menu-button {
+    display: none;
+  }
+
+  @media (max-width: 899px) {
+    .s1230-th {
+      --s1230-th-h: 60px;
+      --s1230-th-gutter: 16px;
+    }
+
+    .s1230-th__bar {
+      grid-template-columns: 1fr auto;
+    }
+
+    .s1230-th__logo {
+      grid-column: 1;
+      justify-self: start;
+    }
+
+    .s1230-th__logo {
+      gap: 6px;
+    }
+
+    .s1230-th__logo svg {
+      width: 88px;
+      height: 17.6px;
+    }
+
+    .s1230-th__menu-button {
+      grid-column: 2;
+      grid-row: 1;
+      display: inline-flex;
+    }
+
+    /* Меню — простой белый список под шапкой, поверх hero */
+    .s1230-th__nav {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      padding: 4px var(--s1230-th-gutter) 16px;
+      border-top: 1px solid var(--s1230-th-line);
+      border-bottom: 1px solid var(--s1230-th-line);
+      background: var(--s1230-th-bg);
+    }
+
+    .s1230-th.is-open .s1230-th__nav {
+      display: block;
+    }
+
+    .s1230-th__list {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .s1230-th__list--main,
+    .s1230-th__list--side {
+      justify-self: stretch;
+    }
+
+    .s1230-th__link {
+      display: flex;
+      width: 100%;
+      min-height: 48px;
+      font-size: 15px;
+    }
+
+    .s1230-th__link::after {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .s1230-th__link::after,
+    .s1230-th__menu-button::after {
+      transition: none;
+    }
+  }
+</style>
+
+<header class="s1230-th" data-s1230-th>
+  <div class="s1230-th__bar">
+    <a class="s1230-th__logo" href="/" aria-label="12:30, отборный ресейл — на главную">
+      <svg viewBox="0 0 115 23" aria-hidden="true" focusable="false">
+        <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M0 2.34811V4.69622H2.21154H4.42308V11.4796V18.2631H2.21154H0V20.6112V22.9593H7.1875H14.375V20.6112V18.2631H12.2226C10.7702 18.2631 9.96132 17.9949 9.73464 17.4376C9.54998 16.9836 9.39904 12.8744 9.39904 8.30605V0H4.69952H0V2.34811ZM23.774 2.34811V4.69622H30.9615H38.149V6.78343V8.87064H33.4495H28.75V11.2187V13.5669H26.262H23.774V18.2631V22.9593H33.4495H43.125V20.6112V18.2631H35.9375H28.75V16.1759V14.0887H33.4495H38.149V11.7406V9.39244H40.637H43.125V7.04433V4.69622H40.637H38.149V2.34811V0H30.9615H23.774V2.34811ZM66.899 2.34811V4.69622H74.0865H81.274V6.76308V8.82994L76.4363 8.98074L71.5986 9.13154V11.4796V13.8278L76.4684 13.9791L81.3382 14.1304L81.1679 16.0663L80.9976 18.0022L73.9483 18.1483L66.899 18.2944V20.6268V22.9593H74.0865H81.274V20.6112V18.2631H83.762H86.25V15.915V13.5669H83.762H81.274V11.4796V9.39244H83.762H86.25V7.04433V4.69622H83.762H81.274V2.34811V0H74.0865H66.899V2.34811ZM100.441 0.348042C100.238 0.539022 100.072 1.59567 100.072 2.69615C100.072 4.68161 100.056 4.69622 97.8606 4.69622H95.649V11.4796V18.2631H97.8291C99.998 18.2631 100.009 18.274 100.179 20.4807L100.349 22.6984L105.186 22.8492L110.024 23V20.6315V18.2631H112.512H115V11.4796V4.69622H112.512H110.024V2.34811V0H105.417C102.882 0 100.643 0.156541 100.441 0.348042ZM52.524 7.04433V9.39244H55.012H57.5V7.04433V4.69622H55.012H52.524V7.04433ZM100.625 11.4796V17.7413H105.325H110.024V11.4796V5.21802H105.325H100.625V11.4796ZM52.524 15.915V18.2631H55.012H57.5V15.915V13.5669H55.012H52.524V15.915Z"/>
+      </svg>
+      <span class="s1230-th__descriptor">отборный ресейл</span>
+    </a>
+
+    <button class="s1230-th__menu-button" type="button" aria-expanded="false" aria-controls="s1230-th-nav">Menu</button>
+
+    <nav class="s1230-th__nav" id="s1230-th-nav" aria-label="Основная навигация">
+      <ul class="s1230-th__list s1230-th__list--main">
+        <li class="s1230-th__item"><a class="s1230-th__link" href="/#new">Новинки</a></li>
+        <li class="s1230-th__item"><a class="s1230-th__link" href="/catalogy">Каталог</a></li>
+        <li class="s1230-th__item"><a class="s1230-th__link" href="#garage-sale">Garage sale</a></li>
+      </ul>
+      <ul class="s1230-th__list s1230-th__list--side">
+        <li class="s1230-th__item"><a class="s1230-th__link" href="/aboutus">О проекте</a></li>
+        <li class="s1230-th__item"><a class="s1230-th__link" href="/applicationform">Продать</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  (function () {
+    var root = document.querySelector('[data-s1230-th]');
+    if (!root || root.getAttribute('data-s1230-th-ready')) return;
+    root.setAttribute('data-s1230-th-ready', '1');
+
+    var button = root.querySelector('.s1230-th__menu-button');
+    var desktop = window.matchMedia('(min-width: 900px)');
+
+    function setOpen(open) {
+      root.classList.toggle('is-open', open);
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    button.addEventListener('click', function () {
+      setOpen(!root.classList.contains('is-open'));
+    });
+
+    root.addEventListener('click', function (e) {
+      if (e.target.closest('.s1230-th__link')) setOpen(false);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && root.classList.contains('is-open')) {
+        setOpen(false);
+        button.focus();
+      }
+    });
+
+    document.addEventListener('click', function (e) {
+      if (root.classList.contains('is-open') && !root.contains(e.target)) setOpen(false);
+    });
+
+    var onChange = function () { if (desktop.matches) setOpen(false); };
+    if (desktop.addEventListener) desktop.addEventListener('change', onChange);
+    else desktop.addListener(onChange);
+  })();
+</script>
+<!-- ================= /ТЕСТОВАЯ ШАПКА ================= -->
+
+<style>
+  .s1230-hh {
+    /* Цвета. Фон героя — «стена» и «пол» — задаётся для каждого раздела в CONFIG. */
+    --s1230-hh-wall: #b0b3b6;
+    --s1230-hh-floor: #d6d8db;
+    --s1230-hh-floor-from: 62%;
+    --s1230-hh-floor-to: 100%;
+    --s1230-hh-text: #000000;
+    --s1230-hh-muted: rgba(0, 0, 0, 0.58);
+    --s1230-hh-page: #ffffff;
+    --s1230-hh-placeholder: #efeeeb;
+    --s1230-hh-body: #232323;
+
+    /* Шрифты — берутся из настроек Tilda, как в остальных компонентах */
+    --s1230-hh-font-headline: var(--t-headline-font, 'Oswald', Arial, sans-serif);
+    --s1230-hh-font-text: var(--t-text-font, 'Inter', Arial, sans-serif);
+
+    /* Высота шапки сайта над героем: экран = 100svh минус шапка.
+       72px / 60px — высота тестовой шапки прототипа (desktop / mobile). */
+    --s1230-hh-top-offset: 72px;
+    --s1230-hh-min-h: 560px;
+    --s1230-hh-h: clamp(var(--s1230-hh-min-h), calc(100vh - var(--s1230-hh-top-offset)), 1100px);
+
+    /* Сетка */
+    --s1230-hh-gutter: 40px;
+    --s1230-hh-max-width: 1240px;
+
+    /* Смена образа и раздела */
+    --s1230-hh-fade: 600ms;
+
+    font-family: var(--s1230-hh-font-text);
+    color: var(--s1230-hh-text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Регистрация нужна только для плавной смены цвета фона вместе с кадром.
+     Без поддержки @property цвет просто сменится сразу. */
+  @property --s1230-hh-wall {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #b0b3b6;
+  }
+
+  @property --s1230-hh-floor {
+    syntax: '<color>';
+    inherits: true;
+    initial-value: #d6d8db;
+  }
+
+  @supports (height: 100svh) {
+    .s1230-hh {
+      --s1230-hh-h: clamp(var(--s1230-hh-min-h), calc(100svh - var(--s1230-hh-top-offset)), 1100px);
+    }
+  }
+
+  .s1230-hh *,
+  .s1230-hh *::before,
+  .s1230-hh *::after {
+    box-sizing: border-box;
+  }
+
+  /* ---------- Hero ---------- */
+
+  /* Фон повторяет студию на фото: «стена» чуть светлее к верху и светлый «пол» внизу.
+     Цвета меняются вместе с кадром. */
+  .s1230-hh__hero {
+    position: relative;
+    height: var(--s1230-hh-h);
+    overflow: hidden;
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--s1230-hh-wall), #ffffff 14%) 0%,
+      var(--s1230-hh-wall) 40%,
+      var(--s1230-hh-wall) var(--s1230-hh-floor-from),
+      var(--s1230-hh-floor) var(--s1230-hh-floor-to)
+    );
+    transition:
+      --s1230-hh-wall var(--s1230-hh-fade) ease,
+      --s1230-hh-floor var(--s1230-hh-fade) ease;
+  }
+
+  .s1230-hh__stage {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Кадр всегда вписан по высоте: голова и ноги не обрезаются никогда,
+     по бокам — тот же студийный фон. Края кадра мягко растворяются в фоне. */
+  .s1230-hh__look {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    display: block;
+    height: 100%;
+    width: auto;
+    max-width: none;
+    transform: translateX(-50%);
+    opacity: 0;
+    -webkit-mask-image:
+      linear-gradient(to right, transparent 0, #000 14%, #000 86%, transparent 100%),
+      linear-gradient(to bottom, transparent 0, #000 2%, #000 97%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-image:
+      linear-gradient(to right, transparent 0, #000 14%, #000 86%, transparent 100%),
+      linear-gradient(to bottom, transparent 0, #000 2%, #000 97%, transparent 100%);
+    mask-composite: intersect;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  /* Новый кадр проявляется поверх предыдущего, предыдущий уходит после —
+     так фон не «проседает» в середине перехода. */
+  .s1230-hh__look.is-prev {
+    opacity: 1;
+    z-index: 1;
+  }
+
+  .s1230-hh__look.is-active {
+    opacity: 1;
+    z-index: 2;
+    transition: opacity var(--s1230-hh-fade) ease;
+  }
+
+  .s1230-hh__title {
+    margin: 0;
+    font-family: var(--s1230-hh-font-headline);
+    font-weight: 500;
+    font-size: clamp(44px, 5.2vw, 80px);
+    line-height: 0.95;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--s1230-hh-text);
+  }
+
+  .s1230-hh__title-line {
+    display: block;
+  }
+
+  .s1230-hh__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--s1230-hh-font-text);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--s1230-hh-text);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+    transition: text-underline-offset 200ms ease;
+  }
+
+  .s1230-hh__link:hover {
+    color: var(--s1230-hh-text);
+    text-underline-offset: 8px;
+  }
+
+  /* ---------- Переключатели ----------
+     Оба уровня — просто слова. Неактивное — приглушено,
+     активное — полная яркость и тонкая линия снизу. */
+
+  .s1230-hh__section,
+  .s1230-hh__state {
+    position: relative;
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--s1230-hh-muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 250ms ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .s1230-hh__section::after,
+  .s1230-hh__state::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 6px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 300ms ease;
+  }
+
+  .s1230-hh__section:hover,
+  .s1230-hh__state:hover,
+  .s1230-hh__section.is-active,
+  .s1230-hh__state.is-active {
+    color: var(--s1230-hh-text);
+  }
+
+  .s1230-hh__section.is-active::after,
+  .s1230-hh__state.is-active::after {
+    transform: scaleX(1);
+  }
+
+  .s1230-hh__section:focus-visible,
+  .s1230-hh__state:focus-visible,
+  .s1230-hh__link:focus-visible,
+  .s1230-hh__card-link:focus-visible {
+    outline: 1px solid var(--s1230-hh-text);
+    outline-offset: 4px;
+  }
+
+  /* Уровень 1 — раздел. Крупнее, шрифт заголовка. */
+  .s1230-hh__section {
+    display: inline-block;
+    padding: 14px 0;
+    font-family: var(--s1230-hh-font-headline);
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+  }
+
+  .s1230-hh__section::after {
+    right: 0.06em;
+    bottom: 7px;
+  }
+
+  /* Уровень 2 — образ. Мельче, текстовый шрифт. */
+  .s1230-hh__state {
+    padding: 14px 0;
+    font-family: var(--s1230-hh-font-text);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+  }
+
+  .s1230-hh__state::after {
+    right: 0.14em;
+  }
+
+  .s1230-hh__switch {
+    display: flex;
+    gap: 28px;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Список образов меняется вместе с разделом — появляется мягко */
+  .s1230-hh__switch.is-entering {
+    animation: s1230-hh-appear 350ms ease both;
+  }
+
+  @keyframes s1230-hh-appear {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Desktop.
+     WOMEN / MEN — по центру hero, по обе стороны от фигуры: сама героиня
+     становится границей между двумя разделами. Расстояние считается от высоты
+     hero, потому что от неё зависит ширина фигуры.
+     Первый пункт — слева от фигуры, остальные — справа в ряд.
+     Заголовок — слева внизу, образы — справа внизу, как в варианте A. */
+  .s1230-hh__sections {
+    position: absolute;
+    z-index: 3;
+    left: 0;
+    right: 0;
+    top: 47%;
+    display: grid;
+    grid-template-columns: 1fr calc(var(--s1230-hh-h) * 0.36 + 88px) 1fr;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .s1230-hh__section {
+    pointer-events: auto;
+  }
+
+  .s1230-hh__section:first-child {
+    grid-column: 1;
+    justify-self: end;
+  }
+
+  .s1230-hh__sections-rest {
+    grid-column: 3;
+    justify-self: start;
+    display: flex;
+    gap: 36px;
+  }
+
+  .s1230-hh__intro {
+    position: absolute;
+    z-index: 3;
+    left: var(--s1230-hh-gutter);
+    bottom: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .s1230-hh__controls {
+    position: absolute;
+    z-index: 3;
+    right: var(--s1230-hh-gutter);
+    bottom: 48px;
+  }
+
+  /* ---------- Каталог-заглушка ---------- */
+
+  .s1230-hh__catalog {
+    background: var(--s1230-hh-page);
+    padding: 56px var(--s1230-hh-gutter) 88px;
+  }
+
+  .s1230-hh__catalog-inner {
+    max-width: var(--s1230-hh-max-width);
+    margin: 0 auto;
+  }
+
+  .s1230-hh__catalog-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .s1230-hh__catalog-title {
+    margin: 0;
+    font-family: var(--s1230-hh-font-headline);
+    font-weight: 500;
+    font-size: 24px;
+    line-height: 1.1;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--s1230-hh-text);
+  }
+
+  .s1230-hh__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 32px 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .s1230-hh__card {
+    margin: 0;
+  }
+
+  .s1230-hh__card-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .s1230-hh__card-media {
+    display: block;
+    aspect-ratio: 3 / 4;
+    background: var(--s1230-hh-placeholder);
+    transition: opacity 200ms ease;
+  }
+
+  .s1230-hh__card-link:hover .s1230-hh__card-media {
+    opacity: 0.85;
+  }
+
+  .s1230-hh__card-name {
+    display: block;
+    margin-top: 12px;
+    font-size: 15px;
+    line-height: 1.35;
+    color: var(--s1230-hh-body);
+  }
+
+  .s1230-hh__card-price {
+    display: block;
+    margin-top: 4px;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--s1230-hh-text);
+  }
+
+  /* ---------- Планшет и мобильный ----------
+     Ниже 1200px по бокам от фигуры не хватает места для четырёх образов,
+     поэтому работает раскладка первого mobile-прототипа:
+     заголовок сверху, фигура в центре, оба переключателя снизу стопкой —
+     сначала раздел, под ним образы. */
+
+  @media (max-width: 1199px) {
+    .s1230-hh {
+      --s1230-hh-floor-from: 58%;
+      --s1230-hh-floor-to: 86%;
+    }
+
+    .s1230-hh__hero {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .s1230-hh__intro {
+      order: -1;
+      position: relative;
+      left: auto;
+      bottom: auto;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 20px var(--s1230-hh-gutter) 0;
+    }
+
+    .s1230-hh__stage {
+      position: relative;
+      inset: auto;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .s1230-hh__sections {
+      position: relative;
+      top: auto;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      transform: none;
+    }
+
+    .s1230-hh__sections-rest {
+      display: contents;
+    }
+
+    .s1230-hh__section {
+      padding: 10px 0 8px;
+    }
+
+    .s1230-hh__section::after {
+      bottom: 3px;
+    }
+
+    .s1230-hh__controls {
+      position: relative;
+      right: auto;
+      bottom: auto;
+      display: flex;
+      justify-content: center;
+      padding: 0 var(--s1230-hh-gutter) calc(10px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .s1230-hh__switch {
+      flex-wrap: wrap;
+      justify-content: center;
+      column-gap: 24px;
+      row-gap: 0;
+    }
+  }
+
+  @media (max-width: 899px) {
+    .s1230-hh {
+      --s1230-hh-gutter: 16px;
+      --s1230-hh-top-offset: 60px;
+      /* шапка + hero целиком помещаются даже в 320×568 */
+      --s1230-hh-min-h: 480px;
+    }
+
+    .s1230-hh__title {
+      font-size: clamp(30px, 9vw, 52px);
+    }
+
+    .s1230-hh__link {
+      flex-shrink: 0;
+      min-height: 32px;
+      font-size: 15px;
+      text-underline-offset: 4px;
+    }
+
+    .s1230-hh__section {
+      font-size: 20px;
+    }
+
+    .s1230-hh__sections {
+      gap: 36px;
+    }
+
+    .s1230-hh__state {
+      font-size: 12px;
+      letter-spacing: 0.12em;
+    }
+
+    .s1230-hh__switch {
+      column-gap: 20px;
+    }
+
+    .s1230-hh__catalog {
+      padding: 40px var(--s1230-hh-gutter) 64px;
+    }
+
+    .s1230-hh__catalog-title {
+      font-size: 20px;
+    }
+
+    .s1230-hh__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px 12px;
+    }
+
+    .s1230-hh__card-name,
+    .s1230-hh__card-price {
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 359px) {
+    .s1230-hh__section {
+      font-size: 18px;
+    }
+
+    .s1230-hh__sections {
+      gap: 24px;
+    }
+
+    .s1230-hh__switch {
+      column-gap: 14px;
+    }
+
+    .s1230-hh__state {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .s1230-hh__hero,
+    .s1230-hh__look.is-active,
+    .s1230-hh__section,
+    .s1230-hh__section::after,
+    .s1230-hh__state,
+    .s1230-hh__state::after {
+      transition: none;
+    }
+
+    .s1230-hh__switch.is-entering {
+      animation: none;
+    }
+  }
+</style>
+
+<div class="s1230-hh" data-s1230-hh>
+  <section class="s1230-hh__hero" aria-label="12:30 — главный экран">
+
+    <!-- Кадры добавляет скрипт по CONFIG -->
+    <div class="s1230-hh__stage"></div>
+
+    <div class="s1230-hh__intro">
+      <h1 class="s1230-hh__title">
+        <span class="s1230-hh__title-line">Из</span>
+        <span class="s1230-hh__title-line">любопытства</span>
+      </h1>
+      <a class="s1230-hh__link" href="/catalogy">Смотреть вещи →</a>
+    </div>
+
+    <!-- Кнопки разделов и образов добавляет скрипт по CONFIG -->
+    <div class="s1230-hh__sections" role="group" aria-label="Раздел"></div>
+
+    <div class="s1230-hh__controls">
+      <div class="s1230-hh__switch" role="group" aria-label="Образ"></div>
+    </div>
+
+  </section>
+
+  <!-- Тестовая полоса каталога: только визуальные заглушки -->
+  <section class="s1230-hh__catalog" aria-label="Вещи в каталоге">
+    <div class="s1230-hh__catalog-inner">
+      <div class="s1230-hh__catalog-head">
+        <h2 class="s1230-hh__catalog-title">Недавно в каталоге</h2>
+        <a class="s1230-hh__link" href="/catalogy">Все вещи →</a>
+      </div>
+      <ul class="s1230-hh__grid">
+        <li class="s1230-hh__card">
+          <a class="s1230-hh__card-link" href="/catalogy">
+            <span class="s1230-hh__card-media" aria-hidden="true"></span>
+            <span class="s1230-hh__card-name">Рубашка в полоску</span>
+            <span class="s1230-hh__card-price">4&nbsp;900&nbsp;₽</span>
+          </a>
+        </li>
+        <li class="s1230-hh__card">
+          <a class="s1230-hh__card-link" href="/catalogy">
+            <span class="s1230-hh__card-media" aria-hidden="true"></span>
+            <span class="s1230-hh__card-name">Юбка на запах</span>
+            <span class="s1230-hh__card-price">5&nbsp;500&nbsp;₽</span>
+          </a>
+        </li>
+        <li class="s1230-hh__card">
+          <a class="s1230-hh__card-link" href="/catalogy">
+            <span class="s1230-hh__card-media" aria-hidden="true"></span>
+            <span class="s1230-hh__card-name">Платье с драпировкой</span>
+            <span class="s1230-hh__card-price">8&nbsp;200&nbsp;₽</span>
+          </a>
+        </li>
+        <li class="s1230-hh__card">
+          <a class="s1230-hh__card-link" href="/catalogy">
+            <span class="s1230-hh__card-media" aria-hidden="true"></span>
+            <span class="s1230-hh__card-name">Беговые кроссовки</span>
+            <span class="s1230-hh__card-price">6&nbsp;700&nbsp;₽</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<script>
+  (function () {
+    // ======================= НАСТРОЙКА =======================
+    // Всё, что может меняться, — здесь.
+    //
+    // Разделы и образы показываются в том порядке, в котором записаны.
+    // Первый раздел и первый образ в разделе открываются по умолчанию;
+    // при переключении раздела открывается его первый образ.
+    // Регистр в label не важен: на экране всё прописными.
+    //
+    // label      — название на экране (рабочее, можно менять);
+    // image      — файл картинки в IMAGE_PATH;
+    // alt        — описание кадра для экранного диктора;
+    // wall, floor — цвета студийного фона кадров раздела («стена» и светлый «пол»),
+    //              чтобы края фото незаметно переходили в фон экрана.
+    //
+    // SPORT — вещи для реального спорта (бег, трейл, велосипед, экипировка).
+    // SPORT STYLE — повседневная одежда со спортивной эстетикой.
+
+    var IMAGE_PATH = '../../assets/home-hero/';
+
+    var CONFIG = [
+      {
+        id: 'women',
+        label: 'Women',
+        wall: '#b0b3b6',
+        floor: '#d6d8db',
+        looks: [
+          { id: 'casual',      label: 'Casual',      image: 'wm-casual.png',      alt: 'Героиня 12:30 в повседневном образе' },
+          { id: 'evening',     label: 'Evening',     image: 'wm-evening.png',     alt: 'Героиня 12:30 в вечернем образе' },
+          { id: 'sport-style', label: 'Sport style', image: 'wm-sport-style.png', alt: 'Героиня 12:30 в повседневном образе со спортивными вещами' },
+          { id: 'sport',       label: 'Sport',       image: 'wm-sport.png',       alt: 'Героиня 12:30 в экипировке для спорта' }
+        ]
+      },
+      {
+        id: 'men',
+        label: 'Men',
+        wall: '#bec0c3',
+        floor: '#d0d1d5',
+        looks: [
+          { id: 'casual',      label: 'Casual',      image: 'men-casual.png',      alt: 'Герой 12:30 в повседневном образе' },
+          { id: 'sport-style', label: 'Sport style', image: 'men-sport-style.png', alt: 'Герой 12:30 в повседневном образе со спортивными вещами' },
+          { id: 'sport',       label: 'Sport',       image: 'men-sport.png',       alt: 'Герой 12:30 в экипировке для спорта' }
+        ]
+      }
+    ];
+    // =========================================================
+
+    var root = document.querySelector('[data-s1230-hh]');
+    if (!root || root.getAttribute('data-s1230-hh-ready')) return;
+    root.setAttribute('data-s1230-hh-ready', '1');
+
+    var stage = root.querySelector('.s1230-hh__stage');
+    var sectionsEl = root.querySelector('.s1230-hh__sections');
+    var looksEl = root.querySelector('.s1230-hh__switch');
+
+    var images = {};
+    var sectionButtons = [];
+    var current = { section: null, look: null };
+    var revealToken = 0;
+
+    function key(section, look) {
+      return section.id + '/' + look.id;
+    }
+
+    function makeButton(className, label) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = className;
+      button.textContent = label;
+      button.setAttribute('aria-pressed', 'false');
+      return button;
+    }
+
+    function setPressed(button, on) {
+      button.classList.toggle('is-active', on);
+      button.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+
+    function load(img) {
+      if (!img.getAttribute('src')) img.src = img.getAttribute('data-src');
+    }
+
+    function whenReady(img, callback) {
+      load(img);
+      if (img.complete && img.naturalWidth) return callback();
+      if (img.decode) img.decode().then(callback, callback);
+      else img.addEventListener('load', callback);
+    }
+
+    // Новый кадр проявляется поверх текущего; если он ещё грузится —
+    // текущий остаётся на месте, пока новый не будет готов.
+    function reveal(next) {
+      var active = stage.querySelector('.s1230-hh__look.is-active');
+      if (next === active) return;
+      var token = ++revealToken;
+
+      whenReady(next, function () {
+        if (token !== revealToken) return;
+        var shown = stage.querySelectorAll('.s1230-hh__look.is-active, .s1230-hh__look.is-prev');
+        for (var i = 0; i < shown.length; i++) {
+          shown[i].classList.remove('is-prev');
+          if (shown[i].classList.contains('is-active')) {
+            shown[i].classList.remove('is-active');
+            shown[i].classList.add('is-prev');
+          }
+          shown[i].setAttribute('aria-hidden', 'true');
+        }
+        next.classList.add('is-active');
+        next.removeAttribute('aria-hidden');
+      });
+    }
+
+    function renderLooks(section, animate) {
+      looksEl.innerHTML = '';
+      section.looks.forEach(function (look) {
+        var button = makeButton('s1230-hh__state', look.label);
+        button.setAttribute('data-look', look.id);
+        button.addEventListener('click', function () {
+          select(section, look);
+        });
+        looksEl.appendChild(button);
+      });
+      if (animate) {
+        looksEl.classList.remove('is-entering');
+        void looksEl.offsetWidth;
+        looksEl.classList.add('is-entering');
+      }
+    }
+
+    function select(section, look) {
+      var isFirst = current.section === null;
+      var sectionChanged = current.section !== section;
+      current.section = section;
+      current.look = look;
+
+      if (sectionChanged) {
+        root.style.setProperty('--s1230-hh-wall', section.wall);
+        root.style.setProperty('--s1230-hh-floor', section.floor);
+        sectionButtons.forEach(function (item) {
+          setPressed(item.button, item.section === section);
+        });
+        renderLooks(section, !isFirst);
+      }
+
+      var buttons = looksEl.querySelectorAll('.s1230-hh__state');
+      for (var i = 0; i < buttons.length; i++) {
+        setPressed(buttons[i], buttons[i].getAttribute('data-look') === look.id);
+      }
+
+      reveal(images[key(section, look)]);
+    }
+
+    // Кадры и пункты первого уровня: первый — слева от фигуры, остальные — справа
+    var first = CONFIG[0];
+    var rest = document.createElement('span');
+    rest.className = 's1230-hh__sections-rest';
+
+    CONFIG.forEach(function (section, index) {
+      var parent = index === 0 ? sectionsEl : rest;
+
+      section.looks.forEach(function (look) {
+        var img = document.createElement('img');
+        img.className = 's1230-hh__look';
+        img.alt = look.alt || '';
+        img.decoding = 'async';
+        img.draggable = false;
+        img.setAttribute('data-src', IMAGE_PATH + look.image);
+        img.setAttribute('aria-hidden', 'true');
+        if (section === first && look === first.looks[0]) {
+          // Стартовый кадр виден сразу, без перехода
+          load(img);
+          img.classList.add('is-active');
+          img.removeAttribute('aria-hidden');
+        }
+        stage.appendChild(img);
+        images[key(section, look)] = img;
+      });
+
+      var button = makeButton('s1230-hh__section', section.label);
+      button.addEventListener('click', function () {
+        if (current.section !== section) select(section, section.looks[0]);
+      });
+      parent.appendChild(button);
+      sectionButtons.push({ section: section, button: button });
+    });
+
+    sectionsEl.appendChild(rest);
+
+    select(first, first.looks[0]);
+
+    // Остальные кадры подгружаются после стартового, чтобы переключение было мгновенным
+    function loadRest() {
+      Object.keys(images).forEach(function (k) {
+        load(images[k]);
+      });
+    }
+    if (document.readyState === 'complete') loadRest();
+    else window.addEventListener('load', loadRest);
+
+    // Предыдущий кадр убираем только когда новый полностью проявился
+    stage.addEventListener('transitionend', function (e) {
+      if (e.propertyName !== 'opacity' || !e.target.classList.contains('is-active')) return;
+      var prev = stage.querySelectorAll('.s1230-hh__look.is-prev');
+      for (var p = 0; p < prev.length; p++) prev[p].classList.remove('is-prev');
+    });
+  })();
+</script>

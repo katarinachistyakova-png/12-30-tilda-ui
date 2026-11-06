@@ -1,0 +1,2335 @@
+<!--
+  12:30 · Главный экран (home-hero) — ПРОТОТИП, ВАРИАНТ С МИКРО-АКЦЕНТОМ
+
+  Копия index.html. Единственное отличие — один приглушённый акцентный цвет
+  --s1230-hh-accent (#3B5862, петрольный серо-синий) в двух местах:
+  подпись «Образ» и линия под выбранным образом.
+
+  Эксперимент для новой главной. Не опубликован, в Tilda не вставлен.
+  Основа — вариант A. Два уровня выбора:
+    1) раздел — WOMEN / MEN (меняется персонаж);
+    2) образ внутри раздела — CASUAL / EVENING / SPORT / SPORT STYLE (меняется образ).
+  Пользователь сам переключает, картинки сменяются мягким crossfade.
+  Ниже — выдача: hero работает как фильтр, 8 вещей меняются вместе с разделом и образом.
+  Товары приходят из живого каталога Tilda Store; вещи с разделом Garage sale
+  в эту выдачу не попадают никогда.
+  Под каталогом — блок «Блогеры и стилисты»: вещи двух блогеров, ссылки на их каталоги,
+  /bloggersshowcase и /collaboration.
+  Над hero — ТЕСТОВАЯ шапка (отдельный блок s1230-th), чтобы оценить первый экран целиком.
+
+  КОНТЕНТ вставки в выдачу и блока блогеров — components/site-content/content.js
+  (подключается отдельно, см. README там же).
+
+  НАСТРОЙКА hero — объект CONFIG в скрипте в конце файла.
+    Там названия разделов и образов, их порядок, пути к картинкам и фон раздела.
+    HTML и CSS от конкретных названий не зависят.
+
+  Кадры одной серии: прозрачные PNG 1536×1024, фигура по центру,
+  макушка ~3%, ступни ~92–94% высоты. Фон hero — почти белая светлая студия
+  (#F7F7F5 → #F4F4F2 → #EEEEEB), шапка — чисто белая.
+  Новые картинки должны повторять эту геометрию — тогда персонаж не «прыгает».
+
+  Удаление: удалить блок T123. Глобальные стили сайта не затрагиваются.
+-->
+
+<meta charset="utf-8">
+<!-- ТОЛЬКО ДЛЯ ЛОКАЛЬНОГО ПРОСМОТРА. Перед вставкой в Tilda удалить: там шрифты
+     уже подключены, а отступы body задаёт сама Tilda. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Oswald:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body { margin: 0; }</style>
+<!-- Tilda отдаёт каталог только страницам на домене сайта, поэтому локально выдача
+     читает снимок ответа Tilda (assets/dev/). На сайте этой строки нет — товары живые. -->
+<meta name="s1230-dev-catalog" content="../../assets/dev/tilda-catalog-snapshot.json">
+<!-- /ТОЛЬКО ДЛЯ ЛОКАЛЬНОГО ПРОСМОТРА -->
+
+<!-- Контент сайта: вставка в выдачу и блогеры — components/site-content/content.js.
+     В Tilda эти данные живут в отдельном блоке T123 на странице шапки (см. README там же). -->
+<script src="../site-content/content.js"></script>
+
+<!-- ================= ТЕСТОВАЯ ШАПКА (только для прототипа) =================
+     Проверка первого экрана целиком: шапка + hero. Это НЕ замена шапки Tilda.
+     Отдельный независимый блок: свои классы s1230-th, свой скрипт; удаляется целиком
+     от этого комментария до «/ТЕСТОВАЯ ШАПКА», hero от него не зависит.
+     Тот же блок используется в components/collaboration-v2/.
+     Логотип — тот же SVG, что в текущей шапке сайта, встроен инлайном.
+     Desktop (от 900px): слева 12:30, по центру НОВИНКИ / КАТАЛОГ / GARAGE SALE,
+     справа О ПРОЕКТЕ / ПРОДАТЬ; меню — в средней колонке сетки 1fr·auto·1fr.
+     «Продать» — кнопка с выпадающим списком из двух сценариев
+     (см. «ВЫПАДАЮЩИЙ СПИСОК „ПРОДАТЬ“» в стилях и разметке).
+     Mobile: 12:30 слева, MENU справа, по нажатию — простой список ссылок. -->
+<style>
+  .s1230-th {
+    --s1230-th-h: 72px;
+    --s1230-th-gutter: 40px;
+    --s1230-th-text: #000000;
+    --s1230-th-bg: #ffffff;
+    --s1230-th-line: rgba(0, 0, 0, 0.08);
+
+    position: relative;
+    z-index: 20;
+    background: var(--s1230-th-bg);
+    color: var(--s1230-th-text);
+    font-family: var(--t-text-font, 'Inter', Arial, sans-serif);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .s1230-th *,
+  .s1230-th *::before,
+  .s1230-th *::after {
+    box-sizing: border-box;
+  }
+
+  .s1230-th__bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    column-gap: 32px;
+    height: var(--s1230-th-h);
+    padding: 0 var(--s1230-th-gutter);
+  }
+
+  /* Фирменный блок: логотип + дескриптор, одна ссылка на главную */
+  .s1230-th__logo {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+    padding: 6px 0;
+    color: var(--s1230-th-text);
+    text-decoration: none;
+  }
+
+  .s1230-th__logo svg {
+    display: block;
+    width: 95px;
+    height: 19px;
+  }
+
+  .s1230-th__descriptor {
+    display: block;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.01em;
+    text-transform: none;
+    white-space: nowrap;
+    color: #1a1a1a;
+  }
+
+  /* На desktop списки — прямые ячейки сетки шапки */
+  .s1230-th__nav {
+    display: contents;
+  }
+
+  .s1230-th__list {
+    grid-row: 1;
+    display: flex;
+    gap: 28px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .s1230-th__list--main {
+    grid-column: 2;
+    justify-self: center;
+  }
+
+  .s1230-th__list--side {
+    grid-column: 3;
+    justify-self: end;
+  }
+
+  .s1230-th__item {
+    margin: 0;
+  }
+
+  .s1230-th__link,
+  .s1230-th__menu-button {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    white-space: nowrap;
+    color: var(--s1230-th-text);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Та же тонкая линия, что у переключателей hero — только при наведении */
+  .s1230-th__link::after,
+  .s1230-th__menu-button::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0.1em;
+    bottom: 12px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 300ms ease;
+  }
+
+  .s1230-th__link:hover,
+  .s1230-th__menu-button:hover {
+    color: var(--s1230-th-text);
+  }
+
+  .s1230-th__link:hover::after,
+  .s1230-th__menu-button:hover::after,
+  .s1230-th__menu-button[aria-expanded="true"]::after {
+    transform: scaleX(1);
+  }
+
+  .s1230-th__logo:focus-visible,
+  .s1230-th__link:focus-visible,
+  .s1230-th__menu-button:focus-visible {
+    outline: 1px solid var(--s1230-th-text);
+    outline-offset: 4px;
+  }
+
+  .s1230-th__menu-button {
+    display: none;
+  }
+
+  /* ---------- ВЫПАДАЮЩИЙ СПИСОК «ПРОДАТЬ» ----------
+     Кнопка выглядит как обычный пункт шапки. Список — белая плашка с тонкой
+     границей прямо под пунктом, без тени, скруглений и иконок. */
+  .s1230-th__sell {
+    position: relative;
+  }
+
+  .s1230-th__sell-toggle[aria-expanded="true"]::after {
+    transform: scaleX(1);
+  }
+
+  .s1230-th__sell-panel {
+    display: none;
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 2px);
+    right: 0;
+    width: 320px;
+    border: 1px solid rgba(0, 0, 0, 0.14);
+    background: var(--s1230-th-bg);
+  }
+
+  .s1230-th__sell.is-open .s1230-th__sell-panel {
+    display: block;
+  }
+
+  .s1230-th__sell-option {
+    display: block;
+    padding: 16px 20px 17px;
+    color: var(--s1230-th-text);
+    text-decoration: none;
+    transition: background-color 150ms ease;
+  }
+
+  .s1230-th__sell-option + .s1230-th__sell-option {
+    border-top: 1px solid var(--s1230-th-line);
+  }
+
+  .s1230-th__sell-option:hover {
+    color: var(--s1230-th-text);
+    background: #f4f4f2;
+  }
+
+  .s1230-th__sell-option:focus-visible {
+    outline: 1px solid var(--s1230-th-text);
+    outline-offset: -4px;
+  }
+
+  .s1230-th__sell-title {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .s1230-th__sell-note {
+    display: block;
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.4;
+    letter-spacing: 0;
+    text-transform: none;
+    color: rgba(0, 0, 0, 0.58);
+  }
+
+  @media (max-width: 899px) {
+    .s1230-th {
+      --s1230-th-h: 60px;
+      --s1230-th-gutter: 16px;
+    }
+
+    .s1230-th__bar {
+      grid-template-columns: 1fr auto;
+    }
+
+    .s1230-th__logo {
+      grid-column: 1;
+      justify-self: start;
+    }
+
+    .s1230-th__logo {
+      gap: 6px;
+    }
+
+    .s1230-th__logo svg {
+      width: 88px;
+      height: 17.6px;
+    }
+
+    .s1230-th__menu-button {
+      grid-column: 2;
+      grid-row: 1;
+      display: inline-flex;
+    }
+
+    /* Меню — простой белый список под шапкой, поверх hero */
+    .s1230-th__nav {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      padding: 4px var(--s1230-th-gutter) 16px;
+      border-top: 1px solid var(--s1230-th-line);
+      border-bottom: 1px solid var(--s1230-th-line);
+      background: var(--s1230-th-bg);
+    }
+
+    .s1230-th.is-open .s1230-th__nav {
+      display: block;
+    }
+
+    .s1230-th__list {
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .s1230-th__list--main,
+    .s1230-th__list--side {
+      justify-self: stretch;
+    }
+
+    .s1230-th__link {
+      display: flex;
+      width: 100%;
+      min-height: 48px;
+      font-size: 15px;
+    }
+
+    .s1230-th__link::after {
+      display: none;
+    }
+
+    /* «Продать» в мобильном меню раскрывает те же два сценария прямо в списке */
+    .s1230-th__sell-panel {
+      position: static;
+      width: auto;
+      border: 0;
+      border-left: 1px solid rgba(0, 0, 0, 0.14);
+      margin: 0 0 8px;
+    }
+
+    .s1230-th__sell-option {
+      padding: 12px 0 13px 16px;
+    }
+
+    .s1230-th__sell-option + .s1230-th__sell-option {
+      border-top: 0;
+    }
+
+    .s1230-th__sell-title {
+      font-size: 14px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .s1230-th__link::after,
+    .s1230-th__menu-button::after {
+      transition: none;
+    }
+  }
+</style>
+
+<header class="s1230-th" data-s1230-th>
+  <div class="s1230-th__bar">
+    <a class="s1230-th__logo" href="/" aria-label="12:30, ресейл-платформа — на главную">
+      <svg viewBox="0 0 115 23" aria-hidden="true" focusable="false">
+        <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M0 2.34811V4.69622H2.21154H4.42308V11.4796V18.2631H2.21154H0V20.6112V22.9593H7.1875H14.375V20.6112V18.2631H12.2226C10.7702 18.2631 9.96132 17.9949 9.73464 17.4376C9.54998 16.9836 9.39904 12.8744 9.39904 8.30605V0H4.69952H0V2.34811ZM23.774 2.34811V4.69622H30.9615H38.149V6.78343V8.87064H33.4495H28.75V11.2187V13.5669H26.262H23.774V18.2631V22.9593H33.4495H43.125V20.6112V18.2631H35.9375H28.75V16.1759V14.0887H33.4495H38.149V11.7406V9.39244H40.637H43.125V7.04433V4.69622H40.637H38.149V2.34811V0H30.9615H23.774V2.34811ZM66.899 2.34811V4.69622H74.0865H81.274V6.76308V8.82994L76.4363 8.98074L71.5986 9.13154V11.4796V13.8278L76.4684 13.9791L81.3382 14.1304L81.1679 16.0663L80.9976 18.0022L73.9483 18.1483L66.899 18.2944V20.6268V22.9593H74.0865H81.274V20.6112V18.2631H83.762H86.25V15.915V13.5669H83.762H81.274V11.4796V9.39244H83.762H86.25V7.04433V4.69622H83.762H81.274V2.34811V0H74.0865H66.899V2.34811ZM100.441 0.348042C100.238 0.539022 100.072 1.59567 100.072 2.69615C100.072 4.68161 100.056 4.69622 97.8606 4.69622H95.649V11.4796V18.2631H97.8291C99.998 18.2631 100.009 18.274 100.179 20.4807L100.349 22.6984L105.186 22.8492L110.024 23V20.6315V18.2631H112.512H115V11.4796V4.69622H112.512H110.024V2.34811V0H105.417C102.882 0 100.643 0.156541 100.441 0.348042ZM52.524 7.04433V9.39244H55.012H57.5V7.04433V4.69622H55.012H52.524V7.04433ZM100.625 11.4796V17.7413H105.325H110.024V11.4796V5.21802H105.325H100.625V11.4796ZM52.524 15.915V18.2631H55.012H57.5V15.915V13.5669H55.012H52.524V15.915Z"/>
+      </svg>
+      <span class="s1230-th__descriptor">ресейл-платформа</span>
+    </a>
+
+    <button class="s1230-th__menu-button" type="button" aria-expanded="false" aria-controls="s1230-th-nav">Menu</button>
+
+    <nav class="s1230-th__nav" id="s1230-th-nav" aria-label="Основная навигация">
+      <ul class="s1230-th__list s1230-th__list--main">
+        <li class="s1230-th__item"><a class="s1230-th__link" href="/#new">Новинки</a></li>
+        <li class="s1230-th__item"><a class="s1230-th__link" href="/catalogy">Каталог</a></li>
+        <li class="s1230-th__item"><a class="s1230-th__link" href="#garage-sale">Garage sale</a></li>
+      </ul>
+      <ul class="s1230-th__list s1230-th__list--side">
+        <li class="s1230-th__item"><a class="s1230-th__link" href="/aboutus">О проекте</a></li>
+        <li class="s1230-th__item s1230-th__sell">
+          <button class="s1230-th__link s1230-th__sell-toggle" type="button" aria-expanded="false" aria-controls="s1230-th-sell">Хочу продать</button>
+          <div class="s1230-th__sell-panel" id="s1230-th-sell">
+            <a class="s1230-th__sell-option" href="/applicationform">
+              <span class="s1230-th__sell-title">Продать свои вещи</span>
+              <span class="s1230-th__sell-note">Обычная заявка на продажу</span>
+            </a>
+            <a class="s1230-th__sell-option" href="/collaboration">
+              <span class="s1230-th__sell-title">Блогерам и стилистам</span>
+              <span class="s1230-th__sell-note">Специальные условия и персональная витрина</span>
+            </a>
+          </div>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  (function () {
+    var root = document.querySelector('[data-s1230-th]');
+    if (!root || root.getAttribute('data-s1230-th-ready')) return;
+    root.setAttribute('data-s1230-th-ready', '1');
+
+    var button = root.querySelector('.s1230-th__menu-button');
+    var desktop = window.matchMedia('(min-width: 900px)');
+
+    var sell = root.querySelector('.s1230-th__sell');
+    var sellToggle = root.querySelector('.s1230-th__sell-toggle');
+
+    function setSell(open) {
+      sell.classList.toggle('is-open', open);
+      sellToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    function setOpen(open) {
+      root.classList.toggle('is-open', open);
+      button.setAttribute('aria-expanded', open ? 'true' : 'false');
+      if (!open) setSell(false);
+    }
+
+    sellToggle.addEventListener('click', function () {
+      setSell(!sell.classList.contains('is-open'));
+    });
+
+    button.addEventListener('click', function () {
+      setOpen(!root.classList.contains('is-open'));
+    });
+
+    root.addEventListener('click', function (e) {
+      if (e.target.closest('a.s1230-th__link, a.s1230-th__sell-option')) setOpen(false);
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (sell.classList.contains('is-open')) {
+        setSell(false);
+        sellToggle.focus();
+      } else if (root.classList.contains('is-open')) {
+        setOpen(false);
+        button.focus();
+      }
+    });
+
+    document.addEventListener('click', function (e) {
+      if (!sell.contains(e.target)) setSell(false);
+      if (root.classList.contains('is-open') && !root.contains(e.target)) setOpen(false);
+    });
+
+    var onChange = function () { setSell(false); if (desktop.matches) setOpen(false); };
+    if (desktop.addEventListener) desktop.addEventListener('change', onChange);
+    else desktop.addListener(onChange);
+  })();
+</script>
+<!-- ================= /ТЕСТОВАЯ ШАПКА ================= -->
+
+<style>
+  .s1230-hh {
+    /* Цвета. Фон hero — светлая бесшовная студия: чуть светлее сверху,
+       базовый серо-молочный в середине, чуть темнее у пола. */
+    --s1230-hh-bg-top: #f7f7f5;
+    --s1230-hh-bg: #f4f4f2;
+    --s1230-hh-bg-floor: #eeeeeb;
+    --s1230-hh-text: #000000;
+    --s1230-hh-muted: rgba(0, 0, 0, 0.58);
+    --s1230-hh-accent: #3B5862;         /* микро-акцент: только мелкие служебные детали */
+    --s1230-hh-page: #ffffff;
+    --s1230-hh-body: #232323;
+
+    /* Шрифты — берутся из настроек Tilda, как в остальных компонентах */
+    --s1230-hh-font-headline: var(--t-headline-font, 'Oswald', Arial, sans-serif);
+    --s1230-hh-font-text: var(--t-text-font, 'Inter', Arial, sans-serif);
+
+    /* Высота шапки сайта над героем: экран = 100svh минус шапка.
+       72px / 60px — высота тестовой шапки прототипа (desktop / mobile). */
+    --s1230-hh-top-offset: 72px;
+    --s1230-hh-min-h: 560px;
+    --s1230-hh-h: clamp(var(--s1230-hh-min-h), calc(100vh - var(--s1230-hh-top-offset)), 1100px);
+
+    /* Сетка */
+    --s1230-hh-gutter: 40px;
+    --s1230-hh-max-width: 1240px;
+
+    /* Смена образа и раздела */
+    --s1230-hh-fade: 600ms;
+
+    font-family: var(--s1230-hh-font-text);
+    color: var(--s1230-hh-text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  @supports (height: 100svh) {
+    .s1230-hh {
+      --s1230-hh-h: clamp(var(--s1230-hh-min-h), calc(100svh - var(--s1230-hh-top-offset)), 1100px);
+    }
+  }
+
+  .s1230-hh *,
+  .s1230-hh *::before,
+  .s1230-hh *::after {
+    box-sizing: border-box;
+  }
+
+  /* ---------- Hero ---------- */
+
+  /* Почти белая студия: тон меняется едва заметно и плавно, без линии горизонта */
+  .s1230-hh__hero {
+    position: relative;
+    height: var(--s1230-hh-h);
+    overflow: hidden;
+    background-color: var(--s1230-hh-bg);
+    background-image: linear-gradient(
+      to bottom,
+      var(--s1230-hh-bg-top) 0%,
+      var(--s1230-hh-bg) 50%,
+      var(--s1230-hh-bg-floor) 100%
+    );
+  }
+
+  .s1230-hh__stage {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Кадр = контактная тень + PNG. Всегда вписан по высоте: голова и ноги
+     не обрезаются никогда. Ширина обёртки = ширине картинки. */
+  .s1230-hh__look {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    height: 100%;
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity var(--s1230-hh-fade) ease;
+  }
+
+  /* PNG показывается как есть — без фильтров, масок и теней на фигуре */
+  .s1230-hh__img {
+    position: relative;
+    display: block;
+    height: 100%;
+    width: auto;
+    max-width: none;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  /* Заземление фигуры — как на белой бесшовной циклораме, без правки PNG
+     и без тени на теле. Три слоя, снизу вверх:
+       ambient — одна низкая широкая рассеянная тень под обеими ногами;
+       sole    — мягкое пятно под каждой подошвой;
+       contact — узкая тёмная линия прямо в точке касания подошвы с полом.
+     Положение и размеры скрипт берёт из прозрачности PNG (где подошвы и какой
+     они ширины), поэтому тень подходит к любому кадру без ручной настройки.
+     Не удалось измерить — тени просто нет. */
+  .s1230-hh__shadow {
+    position: absolute;
+    left: var(--s1230-hh-shadow-x);
+    top: var(--s1230-hh-shadow-y);
+    width: var(--s1230-hh-shadow-w);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .s1230-hh__shadow--ambient {
+    aspect-ratio: 6 / 1;
+    transform: translate(-50%, -38%);
+    background: radial-gradient(
+      closest-side,
+      rgba(34, 32, 28, 0.22) 0%,
+      rgba(34, 32, 28, 0.10) 50%,
+      rgba(34, 32, 28, 0) 100%
+    );
+    filter: blur(10px);
+  }
+
+  .s1230-hh__shadow--sole {
+    aspect-ratio: 3.6 / 1;
+    transform: translate(-50%, -38%);
+    background: radial-gradient(
+      closest-side,
+      rgba(34, 32, 28, 0.36) 0%,
+      rgba(34, 32, 28, 0.16) 50%,
+      rgba(34, 32, 28, 0) 100%
+    );
+    filter: blur(3px);
+  }
+
+  .s1230-hh__shadow--contact {
+    aspect-ratio: 9 / 1;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(
+      closest-side,
+      rgba(24, 22, 20, 0.62) 0%,
+      rgba(24, 22, 20, 0.30) 55%,
+      rgba(24, 22, 20, 0) 100%
+    );
+    filter: blur(1px);
+  }
+
+  /* Crossfade: кадры прозрачные, поэтому прежний гаснет одновременно
+     с тем, как проявляется новый, — иначе он просвечивал бы сквозь новый. */
+  .s1230-hh__look.is-active {
+    opacity: 1;
+    z-index: 1;
+  }
+
+  .s1230-hh__title {
+    margin: 0;
+    font-family: var(--s1230-hh-font-headline);
+    font-weight: 500;
+    font-size: clamp(44px, 5.2vw, 80px);
+    line-height: 0.95;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--s1230-hh-text);
+  }
+
+  .s1230-hh__title-line {
+    display: block;
+  }
+
+  .s1230-hh__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-family: var(--s1230-hh-font-text);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.3;
+    color: var(--s1230-hh-text);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+    transition: text-underline-offset 200ms ease;
+  }
+
+  .s1230-hh__link:hover {
+    color: var(--s1230-hh-text);
+    text-underline-offset: 8px;
+  }
+
+  /* ---------- Переключатели ----------
+     Оба уровня — просто слова. Неактивное — приглушено,
+     активное — полная яркость и тонкая линия снизу. */
+
+  .s1230-hh__section,
+  .s1230-hh__state {
+    position: relative;
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    line-height: 1;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--s1230-hh-muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 250ms ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .s1230-hh__section::after,
+  .s1230-hh__state::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: 6px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left center;
+    transition: transform 300ms ease;
+  }
+
+  .s1230-hh__section:hover,
+  .s1230-hh__state:hover,
+  .s1230-hh__section.is-active,
+  .s1230-hh__state.is-active {
+    color: var(--s1230-hh-text);
+  }
+
+  .s1230-hh__section.is-active::after,
+  .s1230-hh__state.is-active::after {
+    transform: scaleX(1);
+  }
+
+  /* Микро-акцент: линия под выбранным образом */
+  .s1230-hh__state.is-active::after {
+    background: var(--s1230-hh-accent);
+  }
+
+  .s1230-hh__section:focus-visible,
+  .s1230-hh__state:focus-visible,
+  .s1230-hh__link:focus-visible,
+  .s1230-hh__card-link:focus-visible {
+    outline: 1px solid var(--s1230-hh-text);
+    outline-offset: 4px;
+  }
+
+  /* Уровень 1 — раздел. Крупнее, шрифт заголовка. */
+  .s1230-hh__section {
+    display: inline-block;
+    padding: 14px 0;
+    font-family: var(--s1230-hh-font-headline);
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+  }
+
+  .s1230-hh__section::after {
+    right: 0.06em;
+    bottom: 7px;
+  }
+
+  /* Уровень 2 — образ. Мельче, текстовый шрифт. */
+  .s1230-hh__state {
+    padding: 14px 0;
+    font-family: var(--s1230-hh-font-text);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+  }
+
+  .s1230-hh__state::after {
+    right: 0.14em;
+    transition: transform 180ms ease, opacity 180ms ease;
+  }
+
+  /* Зона нажатия — не только буквы: до середины промежутка с соседями
+     и не меньше 44px по высоте. */
+  .s1230-hh__state::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    left: calc(var(--s1230-hh-state-gap) / -2);
+    right: calc(var(--s1230-hh-state-gap) / -2);
+  }
+
+  /* Наведение на неактивный образ — та же тонкая линия, но бледнее активной */
+  @media (hover: hover) {
+    .s1230-hh__state:not(.is-active):hover::after {
+      transform: scaleX(1);
+      opacity: 0.35;
+    }
+  }
+
+  .s1230-hh__switch {
+    --s1230-hh-state-gap: 28px;
+    display: flex;
+    gap: var(--s1230-hh-state-gap);
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Подпись над образами: объясняет, что это выбор образа */
+  .s1230-hh__switch-label {
+    display: block;
+    margin: 0 0 -4px;
+    font-family: var(--s1230-hh-font-text);
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--s1230-hh-accent);
+  }
+
+  /* Список образов меняется вместе с разделом — появляется мягко */
+  .s1230-hh__switch.is-entering {
+    animation: s1230-hh-appear 350ms ease both;
+  }
+
+  @keyframes s1230-hh-appear {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* Desktop.
+     WOMEN / MEN — по центру hero, по обе стороны от фигуры: сама героиня
+     становится границей между двумя разделами. Расстояние считается от высоты
+     hero, потому что от неё зависит ширина фигуры.
+     Первый пункт — слева от фигуры, остальные — справа в ряд.
+     Заголовок — слева внизу, образы — справа внизу, как в варианте A. */
+  .s1230-hh__sections {
+    position: absolute;
+    z-index: 3;
+    left: 0;
+    right: 0;
+    top: 47%;
+    display: grid;
+    grid-template-columns: 1fr calc(var(--s1230-hh-h) * 0.36 + 88px) 1fr;
+    transform: translateY(-50%);
+    pointer-events: none;
+  }
+
+  .s1230-hh__section {
+    pointer-events: auto;
+  }
+
+  .s1230-hh__section:first-child {
+    grid-column: 1;
+    justify-self: end;
+  }
+
+  .s1230-hh__sections-rest {
+    grid-column: 3;
+    justify-self: start;
+    display: flex;
+    gap: 36px;
+  }
+
+  .s1230-hh__intro {
+    position: absolute;
+    z-index: 3;
+    left: var(--s1230-hh-gutter);
+    bottom: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+  }
+
+  .s1230-hh__controls {
+    position: absolute;
+    z-index: 3;
+    right: var(--s1230-hh-gutter);
+    bottom: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  /* ---------- Каталог под hero ----------
+     Hero работает как визуальный фильтр: выбранные раздел и образ
+     показывают свою подборку. Пока — моковые данные (CATALOG в скрипте). */
+
+  .s1230-hh__catalog {
+    background: var(--s1230-hh-page);
+    padding: 64px var(--s1230-hh-gutter) 72px;
+    scroll-margin-top: 0;
+  }
+
+  .s1230-hh__catalog-inner {
+    max-width: none;
+    margin: 0;
+  }
+
+  .s1230-hh__catalog-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  /* Заголовок повторяет выбор в hero: раздел — мелкой подписью, образ —
+     шрифтом заголовка, но заметно спокойнее «Свобода меняться». */
+  .s1230-hh__catalog-title {
+    margin: 0;
+    color: var(--s1230-hh-text);
+  }
+
+  .s1230-hh__catalog-gender {
+    display: block;
+    margin-bottom: 8px;
+    font-family: var(--s1230-hh-font-text);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--s1230-hh-muted);
+  }
+
+  .s1230-hh__catalog-style {
+    display: block;
+    font-family: var(--s1230-hh-font-headline);
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+
+  .s1230-hh__catalog-all {
+    min-height: 32px;
+  }
+
+  .s1230-hh__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 48px 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Подборка меняется вместе с образом — появляется мягко */
+  .s1230-hh__grid.is-entering {
+    animation: s1230-hh-appear 400ms ease both;
+  }
+
+  .s1230-hh__card {
+    margin: 0;
+  }
+
+  /* ---------- Вставка в выдачу: одна вещь крупно ----------
+     После первых четырёх карточек — нестудийное фото вещи, слова продавца,
+     цена и переход на товар. Ломает ритм сетки, но остаётся частью выдачи.
+     Без рамок, плашек и заголовка: механику объясняет сам контент. */
+
+  .s1230-hh__story {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+    column-gap: 56px;
+    align-items: end;
+    margin: 16px 0;
+  }
+
+  .s1230-hh__story-media {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 5 / 4;
+    background: var(--s1230-hh-bg);
+  }
+
+  /* Фото кадрируется по рамке, само изображение не меняется */
+  .s1230-hh__story-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--s1230-hh-story-focus, 50% 50%);
+    transition: opacity 200ms ease;
+  }
+
+  .s1230-hh__story-media:hover .s1230-hh__story-img {
+    opacity: 0.92;
+  }
+
+  .s1230-hh__story-brand {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--s1230-hh-muted);
+  }
+
+  .s1230-hh__story-title {
+    margin: 10px 0 20px;
+    font-family: var(--s1230-hh-font-headline);
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1.02;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+
+  .s1230-hh__story-title-link {
+    color: var(--s1230-hh-text);
+    text-decoration: none;
+  }
+
+  .s1230-hh__story-title-link:hover {
+    color: var(--s1230-hh-text);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+  }
+
+  /* Слова продавца — как есть, обычным текстом */
+  .s1230-hh__story-quote {
+    max-width: 440px;
+    margin: 0;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--s1230-hh-body);
+  }
+
+  .s1230-hh__story-price {
+    display: block;
+    margin-top: 20px;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  .s1230-hh__story-cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--s1230-hh-text);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+    transition: text-underline-offset 200ms ease;
+  }
+
+  .s1230-hh__story-cta:hover {
+    color: var(--s1230-hh-text);
+    text-underline-offset: 9px;
+  }
+
+  .s1230-hh__story-media:focus-visible,
+  .s1230-hh__story-title-link:focus-visible,
+  .s1230-hh__story-cta:focus-visible {
+    outline: 1px solid var(--s1230-hh-text);
+    outline-offset: 4px;
+  }
+
+  .s1230-hh__card-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* Фото товара 3:4, кадрируется по центру. Пока фото грузится (или если
+     его нет), виден светлый студийный фон; тон чуть меняется от карточки
+     к карточке, чтобы ряд не выглядел одной плашкой. */
+  .s1230-hh__card-media {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 3 / 4;
+    background: linear-gradient(to bottom, #f5f5f3, #ededea);
+    transition: opacity 200ms ease;
+  }
+
+  .s1230-hh__card-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .s1230-hh__card:nth-child(4n + 2) .s1230-hh__card-media {
+    background: linear-gradient(to bottom, #f1f0ed, #e8e7e3);
+  }
+
+  .s1230-hh__card:nth-child(4n + 3) .s1230-hh__card-media {
+    background: linear-gradient(to bottom, #f3f3f1, #eaeae7);
+  }
+
+  .s1230-hh__card:nth-child(4n + 4) .s1230-hh__card-media {
+    background: linear-gradient(to bottom, #efefec, #e6e6e2);
+  }
+
+  .s1230-hh__card-link:hover .s1230-hh__card-media {
+    opacity: 0.85;
+  }
+
+  .s1230-hh__card-brand {
+    display: block;
+    margin-top: 14px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--s1230-hh-text);
+  }
+
+  .s1230-hh__card-name {
+    display: block;
+    margin-top: 4px;
+    font-size: 15px;
+    line-height: 1.35;
+    color: var(--s1230-hh-body);
+  }
+
+  .s1230-hh__card-price {
+    display: block;
+    margin-top: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--s1230-hh-text);
+  }
+
+  /* ---------- Блогеры и стилисты ----------
+     Компактный editorial-блок под каталогом: вход на страницу витрин
+     /bloggersshowcase. Слева заголовок и общий CTA, справа два фото-превью.
+     Всё ведёт на /bloggersshowcase, а не в персональные каталоги. */
+
+  .s1230-hh__bloggers {
+    padding: 0 var(--s1230-hh-gutter) 96px;
+    background: var(--s1230-hh-page);
+  }
+
+  .s1230-hh__bloggers-inner {
+    padding-top: 64px;
+    border-top: 1px solid rgba(0, 0, 0, 0.14);
+  }
+
+  .s1230-hh__bloggers-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-rows: auto 1fr;
+    column-gap: 32px;
+  }
+
+  .s1230-hh__bloggers-head {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .s1230-hh__bloggers-title {
+    margin: 0;
+    font-family: var(--s1230-hh-font-headline);
+    font-size: 32px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+    color: var(--s1230-hh-text);
+  }
+
+  .s1230-hh__bloggers-lead {
+    margin: 12px 0 0;
+    font-size: 16px;
+    line-height: 1.45;
+    color: var(--s1230-hh-body);
+  }
+
+  /* Человек и его вещи: фото и имя ведут в его персональный каталог,
+     под описанием — ряд маленьких фото вещей и «Все вещи …» */
+  .s1230-hh__person {
+    grid-row: 1 / span 2;
+    color: var(--s1230-hh-text);
+  }
+
+  .s1230-hh__person-photo {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    background: var(--s1230-hh-bg);
+  }
+
+  /* Фото кадрируется по рамке, само изображение не меняется */
+  .s1230-hh__person-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--s1230-hh-focus, 50% 50%);
+    transition: opacity 200ms ease;
+  }
+
+  .s1230-hh__person-photo:hover .s1230-hh__person-img {
+    opacity: 0.9;
+  }
+
+  .s1230-hh__person-name {
+    margin: 16px 0 6px;
+    font-family: var(--s1230-hh-font-headline);
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+
+  .s1230-hh__person-name-link {
+    color: var(--s1230-hh-text);
+    text-decoration: none;
+  }
+
+  .s1230-hh__person-name-link:hover {
+    color: var(--s1230-hh-text);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+  }
+
+  .s1230-hh__person-text {
+    max-width: 380px;
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--s1230-hh-body);
+  }
+
+  /* Вещи человека — ряд маленьких фото-превью, не карточки:
+     без цен, подписей и рамок. Каждое ведёт на страницу своей вещи. */
+  .s1230-hh__previews {
+    display: grid;
+    grid-template-columns: repeat(4, 76px);
+    gap: 8px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .s1230-hh__preview {
+    margin: 0;
+  }
+
+  .s1230-hh__preview-link {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 3 / 4;
+    background: #ffffff;
+    transition: opacity 200ms ease;
+  }
+
+  .s1230-hh__preview-link:hover {
+    opacity: 0.75;
+  }
+
+  .s1230-hh__preview-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .s1230-hh__person-cta {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--s1230-hh-text);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+    transition: text-underline-offset 200ms ease;
+  }
+
+  .s1230-hh__person-cta:hover {
+    color: var(--s1230-hh-text);
+    text-underline-offset: 9px;
+  }
+
+  .s1230-hh__person-photo:focus-visible,
+  .s1230-hh__person-name-link:focus-visible,
+  .s1230-hh__preview-link:focus-visible,
+  .s1230-hh__person-cta:focus-visible {
+    outline: 1px solid var(--s1230-hh-text);
+    outline-offset: 4px;
+  }
+
+  /* Низ блока — вторичные ссылки: все участники и вход для блогера */
+  .s1230-hh__bloggers-foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    column-gap: 40px;
+    margin-top: 40px;
+  }
+
+  .s1230-hh__collab {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 14px;
+    margin: 0;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--s1230-hh-muted);
+  }
+
+  .s1230-hh__collab-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.3;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--s1230-hh-text);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 5px;
+    transition: text-underline-offset 200ms ease;
+  }
+
+  .s1230-hh__collab-link:hover {
+    color: var(--s1230-hh-text);
+    text-underline-offset: 8px;
+  }
+
+  .s1230-hh__collab-link:focus-visible {
+    outline: 1px solid var(--s1230-hh-text);
+    outline-offset: 4px;
+  }
+
+  /* ---------- Планшет и мобильный ----------
+     Ниже 1200px по бокам от фигуры не хватает места для четырёх образов,
+     поэтому работает раскладка первого mobile-прототипа:
+     заголовок сверху, фигура в центре, оба переключателя снизу стопкой —
+     сначала раздел, под ним образы. */
+
+  @media (max-width: 1199px) {
+    .s1230-hh__hero {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .s1230-hh__intro {
+      order: -1;
+      position: relative;
+      left: auto;
+      bottom: auto;
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 20px var(--s1230-hh-gutter) 0;
+    }
+
+    .s1230-hh__stage {
+      position: relative;
+      inset: auto;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .s1230-hh__sections {
+      position: relative;
+      top: auto;
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      transform: none;
+    }
+
+    .s1230-hh__sections-rest {
+      display: contents;
+    }
+
+    .s1230-hh__section {
+      padding: 10px 0 8px;
+    }
+
+    .s1230-hh__section::after {
+      bottom: 3px;
+    }
+
+    /* Зона нажатия WOMEN / MEN на touch — не меньше 44px, раскладка не меняется */
+    .s1230-hh__section::before {
+      content: "";
+      position: absolute;
+      top: -4px;
+      bottom: -4px;
+      left: -12px;
+      right: -12px;
+    }
+
+    /* Подпись «Образ» встала в бывшие отступы — высота блока и размер фигуры
+       остаются прежними. */
+    .s1230-hh__controls {
+      position: relative;
+      right: auto;
+      bottom: auto;
+      align-items: center;
+      padding: 0 var(--s1230-hh-gutter) calc(6px + env(safe-area-inset-bottom, 0px));
+    }
+
+    .s1230-hh__switch-label {
+      margin: 0 0 2px;
+      font-size: 10px;
+    }
+
+    .s1230-hh__switch {
+      --s1230-hh-state-gap: 24px;
+      flex-wrap: wrap;
+      justify-content: center;
+      row-gap: 0;
+    }
+
+    .s1230-hh__state {
+      padding: 6px 0 14px;
+    }
+
+    .s1230-hh__state::before {
+      top: -8px;
+      bottom: -4px;
+    }
+  }
+
+  @media (max-width: 899px) {
+    .s1230-hh {
+      --s1230-hh-gutter: 16px;
+      --s1230-hh-top-offset: 60px;
+      /* шапка + hero целиком помещаются даже в 320×568 */
+      --s1230-hh-min-h: 480px;
+    }
+
+    .s1230-hh__title {
+      font-size: clamp(30px, 9vw, 52px);
+    }
+
+    .s1230-hh__link {
+      flex-shrink: 0;
+      min-height: 32px;
+      font-size: 15px;
+      text-underline-offset: 4px;
+    }
+
+    .s1230-hh__section {
+      font-size: 20px;
+    }
+
+    .s1230-hh__sections {
+      gap: 36px;
+    }
+
+    .s1230-hh__state {
+      font-size: 12px;
+      letter-spacing: 0.12em;
+    }
+
+    .s1230-hh__switch {
+      --s1230-hh-state-gap: 20px;
+    }
+
+    .s1230-hh__catalog {
+      padding: 40px var(--s1230-hh-gutter) 64px;
+    }
+
+    .s1230-hh__catalog-gender {
+      font-size: 11px;
+      margin-bottom: 6px;
+    }
+
+    .s1230-hh__catalog-style {
+      font-size: 26px;
+    }
+
+    .s1230-hh__catalog-head {
+      margin-bottom: 20px;
+    }
+
+    .s1230-hh__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 32px 12px;
+    }
+
+    .s1230-hh__card-brand {
+      margin-top: 10px;
+      font-size: 11px;
+    }
+
+    /* Вставка: фото → текст → цена → ссылка, одной колонкой */
+    .s1230-hh__story {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 18px;
+      margin: 8px 0;
+    }
+
+    .s1230-hh__story-media {
+      aspect-ratio: 1 / 1;
+    }
+
+    .s1230-hh__story-brand {
+      font-size: 11px;
+    }
+
+    .s1230-hh__story-title {
+      margin: 8px 0 12px;
+      font-size: 26px;
+    }
+
+    .s1230-hh__story-title-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+
+    .s1230-hh__story-quote {
+      font-size: 16px;
+    }
+
+    .s1230-hh__story-price {
+      margin-top: 14px;
+    }
+
+    .s1230-hh__card-name,
+    .s1230-hh__card-price {
+      font-size: 14px;
+    }
+
+    .s1230-hh__catalog {
+      padding-bottom: 48px;
+    }
+
+    .s1230-hh__bloggers {
+      padding-bottom: 64px;
+    }
+
+    .s1230-hh__bloggers-inner {
+      padding-top: 40px;
+    }
+
+    /* Друг под другом: заголовок, два превью, общий CTA */
+    .s1230-hh__bloggers-grid {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: none;
+      row-gap: 28px;
+    }
+
+    .s1230-hh__bloggers-head,
+    .s1230-hh__person {
+      grid-column: 1;
+      grid-row: auto;
+    }
+
+    /* Превью — компактная сетка в одну строку на всю ширину */
+    .s1230-hh__previews {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-top: 14px;
+    }
+
+    .s1230-hh__person-cta {
+      margin-top: 6px;
+    }
+
+    .s1230-hh__bloggers-foot {
+      margin-top: 24px;
+    }
+
+    .s1230-hh__bloggers-title {
+      font-size: 26px;
+    }
+
+    .s1230-hh__bloggers-lead {
+      margin-top: 10px;
+      font-size: 15px;
+    }
+
+    /* На телефоне фото квадратные — блок не разрастается */
+    .s1230-hh__person-photo {
+      aspect-ratio: 1 / 1;
+    }
+
+    /* Имя — ссылка с зоной нажатия 44px; отступы уменьшены, чтобы ритм не изменился */
+    .s1230-hh__person-name {
+      margin: 4px 0 0;
+      font-size: 22px;
+    }
+
+    .s1230-hh__person-name-link {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+
+    .s1230-hh__collab {
+      margin-top: 0;
+      font-size: 11px;
+    }
+  }
+
+  @media (max-width: 359px) {
+    .s1230-hh__section {
+      font-size: 18px;
+    }
+
+    .s1230-hh__sections {
+      gap: 24px;
+    }
+
+    .s1230-hh__switch {
+      --s1230-hh-state-gap: 14px;
+    }
+
+    .s1230-hh__state {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+    }
+
+    .s1230-hh__state::before {
+      bottom: -5px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .s1230-hh__look,
+    .s1230-hh__section,
+    .s1230-hh__section::after,
+    .s1230-hh__state,
+    .s1230-hh__state::after {
+      transition: none;
+    }
+
+    .s1230-hh__switch.is-entering,
+    .s1230-hh__grid.is-entering {
+      animation: none;
+    }
+  }
+</style>
+
+<div class="s1230-hh" data-s1230-hh>
+  <section class="s1230-hh__hero" aria-label="12:30 — главный экран">
+
+    <!-- Кадры добавляет скрипт по CONFIG -->
+    <div class="s1230-hh__stage"></div>
+
+    <div class="s1230-hh__intro">
+      <h1 class="s1230-hh__title">
+        <span class="s1230-hh__title-line">Свобода</span>
+        <span class="s1230-hh__title-line">меняться</span>
+      </h1>
+      <a class="s1230-hh__link s1230-hh__to-catalog" href="#s1230-hh-catalog">Смотреть вещи →</a>
+    </div>
+
+    <!-- Кнопки разделов и образов добавляет скрипт по CONFIG -->
+    <div class="s1230-hh__sections" role="group" aria-label="Раздел"></div>
+
+    <div class="s1230-hh__controls">
+      <span class="s1230-hh__switch-label" id="s1230-hh-looks-label">Образ</span>
+      <div class="s1230-hh__switch" role="group" aria-labelledby="s1230-hh-looks-label"></div>
+    </div>
+
+  </section>
+
+  <!-- Каталог под hero: подборку для выбранных раздела и образа рисует скрипт -->
+  <section class="s1230-hh__catalog" id="s1230-hh-catalog" aria-label="Вещи выбранного образа">
+    <div class="s1230-hh__catalog-inner">
+      <div class="s1230-hh__catalog-head">
+        <h2 class="s1230-hh__catalog-title" aria-live="polite">
+          <span class="s1230-hh__catalog-gender"></span>
+          <span class="s1230-hh__catalog-style"></span>
+        </h2>
+        <a class="s1230-hh__link s1230-hh__catalog-all" href="/catalogy">Смотреть все →</a>
+      </div>
+      <ul class="s1230-hh__grid"></ul>
+    </div>
+  </section>
+
+  <!-- ============ БЛОГЕРЫ И СТИЛИСТЫ ============
+       Профили берутся из общего контента: components/site-content/content.js,
+       массив bloggers (тот же источник — для /bloggersshowcase).
+       Покупатель может открыть конкретную вещь, все вещи одного человека
+       или страницу со всеми участниками. -->
+  <section class="s1230-hh__bloggers" aria-labelledby="s1230-hh-bloggers-title">
+    <div class="s1230-hh__bloggers-inner">
+      <div class="s1230-hh__bloggers-grid">
+        <div class="s1230-hh__bloggers-head">
+          <h2 class="s1230-hh__bloggers-title" id="s1230-hh-bloggers-title">Блогеры и стилисты</h2>
+          <p class="s1230-hh__bloggers-lead">Вещи людей, чей стиль нам интересен.</p>
+        </div>
+        <!-- Профили добавляет скрипт из s1230Content.bloggers (showOnHome, homeOrder) -->
+      </div>
+      <div class="s1230-hh__bloggers-foot">
+        <a class="s1230-hh__collab-link s1230-hh__bloggers-all" href="/bloggersshowcase">Все блогеры и стилисты →</a>
+        <p class="s1230-hh__collab">
+          <span>Блогер или стилист?</span>
+          <a class="s1230-hh__collab-link" href="/collaboration">Сотрудничать с 12:30 →</a>
+        </p>
+      </div>
+    </div>
+  </section>
+  <!-- ============ /БЛОГЕРЫ И СТИЛИСТЫ ============ -->
+</div>
+
+<script>
+  (function () {
+    // ======================= НАСТРОЙКА =======================
+    // Всё, что может меняться, — здесь.
+    //
+    // Разделы и образы показываются в том порядке, в котором записаны.
+    // Первый раздел и первый образ в разделе открываются по умолчанию;
+    // при переключении раздела открывается его первый образ.
+    // Регистр в label не важен: на экране всё прописными.
+    //
+    // label      — название на экране (рабочее, можно менять);
+    // category   — точное название раздела товаров в Tilda (как в каталоге,
+    //              с тем же регистром): по нему подбирается выдача под hero;
+    // image      — файл картинки в IMAGE_PATH;
+    // alt        — описание кадра для экранного диктора;
+    //
+    // SPORT — вещи для реального спорта (бег, трейл, велосипед, экипировка).
+    // SPORT STYLE — повседневная одежда со спортивной эстетикой.
+
+    var IMAGE_PATH = '../../assets/home-hero/';
+
+    var CONFIG = [
+      {
+        id: 'women',
+        label: 'Women',
+        category: 'Женское',
+        looks: [
+          { id: 'casual',      category: 'Casual', label: 'Casual',      image: 'wm-casual.png',      alt: 'Героиня 12:30 в повседневном образе' },
+          { id: 'evening',     category: 'Evening', label: 'Evening',     image: 'wm-evening.png',     alt: 'Героиня 12:30 в вечернем образе' },
+          { id: 'sport-style', category: 'Sport style', label: 'Sport style', image: 'wm-sport-style.png', alt: 'Героиня 12:30 в повседневном образе со спортивными вещами' },
+          { id: 'sport',       category: 'Sport', label: 'Sport',       image: 'wm-sport.png',       alt: 'Героиня 12:30 в экипировке для спорта' }
+        ]
+      },
+      {
+        id: 'men',
+        label: 'Men',
+        category: 'Мужское',
+        looks: [
+          { id: 'casual',      category: 'Casual', label: 'Casual',      image: 'men-casual.png',      alt: 'Герой 12:30 в повседневном образе' },
+          { id: 'sport-style', category: 'Sport style', label: 'Sport style', image: 'men-sport-style.png', alt: 'Герой 12:30 в повседневном образе со спортивными вещами' },
+          { id: 'sport',       category: 'Sport', label: 'Sport',       image: 'men-sport.png',       alt: 'Герой 12:30 в экипировке для спорта' }
+        ]
+      }
+    ];
+    // ---------- Товары под hero: только из Tilda ----------
+    // Выдача строится из живого каталога Tilda Store — тем же запросом, которым
+    // каталог сайта получает товары сам. Здесь товары не хранятся: название, цена,
+    // фото, наличие, разделы и ссылка приходят из Tilda при каждом открытии страницы.
+    // Лера ведёт товары в Tilda — главная показывает актуальное.
+    //
+    // Правило подборки «раздел / образ»:
+    //   товар в наличии
+    //   + у него есть раздел пола (category раздела) и раздел стиля (category образа)
+    //   + у него НЕТ раздела EXCLUDED_CATEGORY.
+    // Garage sale — запрет для основной выдачи главной при любых других разделах.
+    // Порядок — как в каталоге Tilda, показываются первые CARDS_PER_SELECTION.
+    // Не удалось получить каталог — сетки нет, заголовок и «Смотреть все →» остаются.
+    // Tilda отвечает только страницам на домене сайта (12-30.ru).
+    var CATALOG_URL = '/catalogy';
+    var TILDA_STORE = {
+      api: 'https://store.tildaapi.com/api/getproductslist/',
+      storepartuid: '909723291111',   // весь каталог магазина 12:30
+      recid: '797040197'              // блок каталога на странице /catalogy
+    };
+    var EXCLUDED_CATEGORY = 'Garage sale';
+
+    // ---------- Редакционный контент: история в выдаче и блогеры ----------
+    // Вёрстка не знает, откуда пришли данные. Сейчас источник — content.js
+    // (components/site-content/). Позже — CRM: достаточно указать адрес в CONTENT_URL,
+    // и те же данные в том же виде придут по сети. Нет данных — блоков просто нет.
+    var CONTENT_URL = root0().getAttribute('data-s1230-content-url') || '';
+    var ASSET_BASE = '../../assets/';   // для картинок, заданных именем файла; полные адреса берутся как есть
+    var STORY_AFTER_CARD = 4;           // после какой карточки стоит вставка
+    var HOME_BLOGGERS_MAX = 2;          // текущая композиция блока рассчитана на двоих
+    var CARDS_PER_SELECTION = 8;
+    var STORY = null;                   // заполняется в applyContent
+
+    function root0() {
+      return document.querySelector('[data-s1230-hh]') || document.documentElement;
+    }
+
+    function loadContent() {
+      if (CONTENT_URL && window.fetch) {
+        return fetch(CONTENT_URL)
+          .then(function (response) { return response.ok ? response.json() : null; })
+          .catch(function () { return null; });
+      }
+      return Promise.resolve(window.s1230Content || null);
+    }
+
+    function asset(src) {
+      return /^https?:/.test(src) ? src : ASSET_BASE + src;
+    }
+
+    // Название как в Tilda часто заканчивается брендом. Бренд уже стоит подписью
+    // над названием, поэтому в заголовке вставки он не повторяется.
+    function titleWithoutBrand(title, brand) {
+      if (!brand) return title;
+      var t = title.trim(), tail = t.slice(-brand.length);
+      return tail.toLowerCase() === brand.toLowerCase() ? t.slice(0, -brand.length).trim() : t;
+    }
+
+    // =========================================================
+
+    var root = document.querySelector('[data-s1230-hh]');
+    if (!root || root.getAttribute('data-s1230-hh-ready')) return;
+    root.setAttribute('data-s1230-hh-ready', '1');
+
+    var stage = root.querySelector('.s1230-hh__stage');
+    var sectionsEl = root.querySelector('.s1230-hh__sections');
+    var looksEl = root.querySelector('.s1230-hh__switch');
+    var catalogEl = root.querySelector('.s1230-hh__catalog');
+    var catalogGender = root.querySelector('.s1230-hh__catalog-gender');
+    var catalogStyle = root.querySelector('.s1230-hh__catalog-style');
+    var catalogAll = root.querySelector('.s1230-hh__catalog-all');
+    var gridEl = root.querySelector('.s1230-hh__grid');
+
+    var images = {};
+    var sectionButtons = [];
+    // Единое состояние страницы: раздел (gender) + образ (style).
+    // Hero и каталог только отображают его.
+    var state = { gender: null, style: null };
+    var revealToken = 0;
+
+    function key(section, look) {
+      return section.id + '/' + look.id;
+    }
+
+    function makeButton(className, label) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = className;
+      button.textContent = label;
+      button.setAttribute('aria-pressed', 'false');
+      return button;
+    }
+
+    function setPressed(button, on) {
+      button.classList.toggle('is-active', on);
+      button.setAttribute('aria-pressed', on ? 'true' : 'false');
+    }
+
+    function load(img) {
+      if (!img.getAttribute('src')) img.src = img.getAttribute('data-src');
+    }
+
+    function whenReady(img, callback) {
+      load(img);
+      if (img.complete && img.naturalWidth) return callback();
+      if (img.decode) img.decode().then(callback, callback);
+      else img.addEventListener('load', callback);
+    }
+
+    // Заземление: по альфа-каналу PNG находим подошвы — нижний край и две
+    // отдельные стопы (разрыв между ботинками по столбцам). Картинка
+    // уменьшается до 512px по ширине — это быстро.
+    function placeShadows(img, el) {
+      try {
+        var w = 512;
+        var h = Math.round(w * img.naturalHeight / img.naturalWidth);
+        var canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        var data = ctx.getImageData(0, 0, w, h).data;
+        var opaque = function (x, y) { return data[(y * w + x) * 4 + 3] > 200; };
+        var x, y;
+
+        var bottom = -1;
+        for (y = h - 1; y >= 0 && bottom < 0; y--) {
+          for (x = 0; x < w; x++) {
+            if (opaque(x, y)) { bottom = y; break; }
+          }
+        }
+        if (bottom < 0) return;
+
+        // Столбцы, занятые обувью в нижней полосе, → отдельные стопы
+        var band = Math.max(3, Math.round(h * 0.03));
+        var runs = [], start = -1;
+        for (x = 0; x <= w; x++) {
+          var busy = false;
+          if (x < w) {
+            for (y = bottom - band; y <= bottom; y++) {
+              if (opaque(x, y)) { busy = true; break; }
+            }
+          }
+          if (busy && start < 0) start = x;
+          if (!busy && start >= 0) {
+            var last = runs[runs.length - 1];
+            if (last && start - last.right <= 3) last.right = x - 1;
+            else runs.push({ left: start, right: x - 1 });
+            start = -1;
+          }
+        }
+        if (!runs.length) return;
+        var feet = runs.length > 1 ? [runs[0], runs[runs.length - 1]] : [runs[0]];
+
+        var pct = function (v, total) { return (v / total * 100) + '%'; };
+        var add = function (type, cx, cy, width) {
+          var shadow = document.createElement('span');
+          shadow.className = 's1230-hh__shadow s1230-hh__shadow--' + type;
+          shadow.setAttribute('aria-hidden', 'true');
+          shadow.style.setProperty('--s1230-hh-shadow-x', pct(cx, w));
+          shadow.style.setProperty('--s1230-hh-shadow-y', pct(cy, h));
+          shadow.style.setProperty('--s1230-hh-shadow-w', pct(width, w));
+          el.insertBefore(shadow, img);
+        };
+
+        // Широкая рассеянная — под обеими ногами
+        var left = feet[0].left, right = feet[feet.length - 1].right;
+        add('ambient', (left + right) / 2, bottom + 1, (right - left) * 1.9);
+
+        // Под каждой подошвой, по её нижнему краю: мягкое пятно + линия касания
+        feet.forEach(function (foot) {
+          var footBottom = -1;
+          for (y = bottom; y >= bottom - band * 2 && footBottom < 0; y--) {
+            for (x = foot.left; x <= foot.right; x++) {
+              if (opaque(x, y)) { footBottom = y; break; }
+            }
+          }
+          var cx = (foot.left + foot.right) / 2, fw = foot.right - foot.left + 1;
+          add('sole', cx, footBottom + 1, fw * 1.6);
+          add('contact', cx, footBottom + 1, fw * 1.05);
+        });
+      } catch (e) {
+        // Картинку нельзя прочитать (например, чужой домен без CORS) — без тени
+      }
+    }
+
+    // Прежний кадр гаснет, новый проявляется; если новый ещё грузится —
+    // текущий остаётся на месте, пока новый не будет готов.
+    function reveal(entry) {
+      var next = entry.el;
+      var active = stage.querySelector('.s1230-hh__look.is-active');
+      if (next === active) return;
+      var token = ++revealToken;
+
+      whenReady(entry.img, function () {
+        if (token !== revealToken) return;
+        var shown = stage.querySelectorAll('.s1230-hh__look.is-active');
+        for (var i = 0; i < shown.length; i++) {
+          shown[i].classList.remove('is-active');
+          shown[i].setAttribute('aria-hidden', 'true');
+        }
+        next.classList.add('is-active');
+        next.removeAttribute('aria-hidden');
+      });
+    }
+
+    function renderLooks(section, animate) {
+      looksEl.innerHTML = '';
+      section.looks.forEach(function (look) {
+        var button = makeButton('s1230-hh__state', look.label);
+        button.setAttribute('data-look', look.id);
+        button.addEventListener('click', function () {
+          setState({ style: look.id });
+        });
+        looksEl.appendChild(button);
+      });
+      if (animate) {
+        looksEl.classList.remove('is-entering');
+        void looksEl.offsetWidth;
+        looksEl.classList.add('is-entering');
+      }
+    }
+
+    var products = null;                // null — ещё грузится, [] — получить не удалось
+
+    function decodeText(text) {
+      var box = document.createElement('textarea');
+      box.innerHTML = text || '';
+      return box.value;
+    }
+
+    function parseList(json) {
+      try { return JSON.parse(json || '[]') || []; } catch (e) { return []; }
+    }
+
+    function inStock(quantity) {
+      return quantity === '' || quantity === null || quantity === undefined || parseFloat(quantity) > 0;
+    }
+
+    // Товар Tilda → то, что нужно карточке. Ничего не дописываем и не исправляем.
+    function normalizeProduct(raw, partNames) {
+      var editions = raw.editions || [];
+      var gallery = parseList(raw.gallery);
+      var price = parseFloat(raw.price);
+      editions.forEach(function (edition) {
+        var p = parseFloat(edition.price);
+        if (!isNaN(p) && (isNaN(price) || p < price)) price = p;
+      });
+      return {
+        uid: String(raw.uid),
+        title: decodeText(raw.title),
+        price: price,
+        image: (gallery[0] && gallery[0].img) || (editions[0] && editions[0].img) || '',
+        url: String(raw.url || '').replace(/^http:/, 'https:'),
+        categories: parseList(raw.partuids).map(function (uid) { return partNames[uid] || ''; }),
+        available: editions.length
+          ? editions.some(function (edition) { return inStock(edition.quantity); })
+          : inStock(raw.quantity)
+      };
+    }
+
+    function loadProducts() {
+      if (!window.fetch) return Promise.resolve([]);
+      var all = [], names = {};
+      // Только для локального просмотра: снимок ответа Tilda (см. начало файла)
+      var dev = document.querySelector('meta[name="s1230-dev-catalog"]');
+      var devUrl = dev ? dev.getAttribute('content') : '';
+
+      function page(slice) {
+        var url = devUrl || (TILDA_STORE.api + '?storepartuid=' + TILDA_STORE.storepartuid + '&recid=' + TILDA_STORE.recid +
+          '&getparts=true&size=500&slice=' + slice + '&c=' + Date.now());
+        return fetch(url).then(function (response) { return response.json(); }).then(function (data) {
+          (data.parts || []).forEach(function (part) { names[part.uid] = part.title; });
+          all = all.concat(data.products || []);
+          return !devUrl && data.nextslice && slice < 10 ? page(data.nextslice) : null;
+        });
+      }
+
+      return page(1).then(function () {
+        return all.map(function (raw) { return normalizeProduct(raw, names); });
+      }).catch(function () { return []; });
+    }
+
+    // Абсолютное правило основной выдачи: пол + стиль, в наличии, без Garage sale
+    function isCurated(product, section, look) {
+      var c = product.categories;
+      return product.available && !isNaN(product.price) &&
+        c.indexOf(section.category) !== -1 &&
+        c.indexOf(look.category) !== -1 &&
+        c.indexOf(EXCLUDED_CATEGORY) === -1;
+    }
+
+    function formatPrice(value) {
+      return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, '\u00a0') + '\u00a0₽';
+    }
+
+    function el(tag, className, text) {
+      var node = document.createElement(tag);
+      node.className = className;
+      if (text) node.textContent = text;
+      return node;
+    }
+
+    // Вставка: крупное фото вещи в жизни, слова продавца, цена, переход на товар
+    function renderStory(story) {
+      var li = el('li', 's1230-hh__story');
+
+      var media = el('a', 's1230-hh__story-media');
+      media.href = story.productUrl;
+      var storyTitle = titleWithoutBrand(story.title, story.brand);
+      media.setAttribute('aria-label', (story.brand ? story.brand + ' — ' : '') + storyTitle);
+      var img = el('img', 's1230-hh__story-img');
+      img.src = asset(story.image);
+      img.alt = story.imageAlt || '';
+      img.loading = 'lazy';
+      img.decoding = 'async';
+      if (story.imageFocus) img.style.setProperty('--s1230-hh-story-focus', story.imageFocus);
+      media.appendChild(img);
+
+      var body = el('div', 's1230-hh__story-body');
+      if (story.brand) body.appendChild(el('span', 's1230-hh__story-brand', story.brand));
+      var title = el('h3', 's1230-hh__story-title');
+      var titleLink = el('a', 's1230-hh__story-title-link', storyTitle);
+      titleLink.href = story.productUrl;
+      title.appendChild(titleLink);
+      body.appendChild(title);
+      body.appendChild(el('p', 's1230-hh__story-quote', '«' + story.quote + '»'));
+      body.appendChild(el('span', 's1230-hh__story-price', formatPrice(story.price)));
+      var cta = el('a', 's1230-hh__story-cta', 'Смотреть вещь →');
+      cta.href = story.productUrl;
+      body.appendChild(cta);
+
+      li.appendChild(media);
+      li.appendChild(body);
+      return li;
+    }
+
+    // Подборка под hero для выбранных раздела и образа
+    function renderCatalog(section, look, animate) {
+      catalogEl.setAttribute('data-gender', section.id);
+      catalogEl.setAttribute('data-style', look.id);
+      catalogGender.textContent = section.label;
+      catalogStyle.textContent = look.label;
+      catalogAll.href = CATALOG_URL;
+      gridEl.innerHTML = '';
+      gridEl.style.display = '';
+
+      // Пока каталог грузится — пустые места под карточки, чтобы страница не прыгала
+      if (products === null) {
+        for (var n = 0; n < CARDS_PER_SELECTION; n++) {
+          var stub = el('li', 's1230-hh__card');
+          stub.setAttribute('aria-hidden', 'true');
+          stub.appendChild(el('span', 's1230-hh__card-media'));
+          gridEl.appendChild(stub);
+        }
+        return;
+      }
+
+      // Вещь из вставки не повторяется карточкой: её место занимает следующая из списка
+      var storyHere = STORY && STORY.section === section.id;
+      var items = products.filter(function (item) {
+        return isCurated(item, section, look) && !(storyHere && item.uid === String(STORY.productUid));
+      }).slice(0, CARDS_PER_SELECTION);
+      gridEl.style.display = items.length ? '' : 'none';
+
+      items.forEach(function (item) {
+        var li = el('li', 's1230-hh__card');
+        li.setAttribute('data-uid', item.uid);
+        var link = el('a', 's1230-hh__card-link');
+        link.href = item.url || CATALOG_URL;
+
+        var media = el('span', 's1230-hh__card-media');
+        if (item.image) {
+          var photo = el('img', 's1230-hh__card-img');
+          photo.src = item.image;
+          photo.alt = '';
+          photo.loading = 'lazy';
+          photo.decoding = 'async';
+          media.appendChild(photo);
+        }
+        link.appendChild(media);
+        link.appendChild(el('span', 's1230-hh__card-name', item.title));
+        link.appendChild(el('span', 's1230-hh__card-price', formatPrice(item.price)));
+
+        li.appendChild(link);
+        gridEl.appendChild(li);
+      });
+
+      if (storyHere) {
+        var cards = gridEl.querySelectorAll('.s1230-hh__card');
+        gridEl.insertBefore(renderStory(STORY), cards[STORY_AFTER_CARD] || null);
+      }
+
+      if (animate) {
+        gridEl.classList.remove('is-entering');
+        void gridEl.offsetWidth;
+        gridEl.classList.add('is-entering');
+      }
+    }
+
+    function findSection(id) {
+      for (var i = 0; i < CONFIG.length; i++) if (CONFIG[i].id === id) return CONFIG[i];
+      return null;
+    }
+
+    function findLook(section, id) {
+      for (var i = 0; i < section.looks.length; i++) if (section.looks[i].id === id) return section.looks[i];
+      return null;
+    }
+
+    // Единственная точка изменения состояния. Смена раздела без указания образа
+    // открывает его первый образ; неизвестный образ — тоже первый.
+    function setState(next) {
+      var section = findSection(next.gender || state.gender) || CONFIG[0];
+      var genderChanged = section.id !== state.gender;
+      var look = findLook(section, next.style || (genderChanged ? '' : state.style)) || section.looks[0];
+      if (!genderChanged && look.id === state.style) return;
+
+      var isFirst = state.gender === null;
+      state = { gender: section.id, style: look.id };
+      render(section, look, genderChanged, isFirst);
+
+      root.dispatchEvent(new CustomEvent('s1230-hh:change', { detail: { gender: state.gender, style: state.style } }));
+    }
+
+    function render(section, look, genderChanged, isFirst) {
+      if (genderChanged) {
+        sectionButtons.forEach(function (item) {
+          setPressed(item.button, item.section === section);
+        });
+        renderLooks(section, !isFirst);
+      }
+
+      var buttons = looksEl.querySelectorAll('.s1230-hh__state');
+      for (var i = 0; i < buttons.length; i++) {
+        setPressed(buttons[i], buttons[i].getAttribute('data-look') === look.id);
+      }
+
+      reveal(images[key(section, look)]);
+      renderCatalog(section, look, !isFirst);
+    }
+
+    // Кадры и пункты первого уровня: первый — слева от фигуры, остальные — справа
+    var first = CONFIG[0];
+    var rest = document.createElement('span');
+    rest.className = 's1230-hh__sections-rest';
+
+    CONFIG.forEach(function (section, index) {
+      var parent = index === 0 ? sectionsEl : rest;
+
+      section.looks.forEach(function (look) {
+        var el = document.createElement('div');
+        el.className = 's1230-hh__look';
+        el.setAttribute('aria-hidden', 'true');
+
+        var img = document.createElement('img');
+        img.className = 's1230-hh__img';
+        img.alt = look.alt || '';
+        img.decoding = 'async';
+        img.draggable = false;
+        img.crossOrigin = 'anonymous'; // чтобы прочитать прозрачность для тени
+        img.setAttribute('data-src', IMAGE_PATH + look.image);
+        img.addEventListener('load', function () {
+          placeShadows(img, el);
+        });
+
+        el.appendChild(img);
+
+        if (section === first && look === first.looks[0]) {
+          // Стартовый кадр виден сразу, без перехода
+          load(img);
+          el.classList.add('is-active');
+          el.removeAttribute('aria-hidden');
+        }
+        stage.appendChild(el);
+        images[key(section, look)] = { el: el, img: img };
+      });
+
+      var button = makeButton('s1230-hh__section', section.label);
+      button.addEventListener('click', function () {
+        setState({ gender: section.id });
+      });
+      parent.appendChild(button);
+      sectionButtons.push({ section: section, button: button });
+    });
+
+    sectionsEl.appendChild(rest);
+
+    setState({ gender: first.id, style: first.looks[0].id });
+
+    // Программная смена состояния без перезагрузки — например, из каталога:
+    //   root.dispatchEvent(new CustomEvent('s1230-hh:set', { detail: { gender: 'men', style: 'sport' } }))
+    // После каждой смены компонент сообщает о ней событием 's1230-hh:change'.
+    root.addEventListener('s1230-hh:set', function (e) {
+      setState(e.detail || {});
+    });
+
+    // Блогеры и стилисты на главной: только showOnHome, по homeOrder, не больше двух
+    function renderBloggers(bloggers) {
+      var block = root.querySelector('.s1230-hh__bloggers');
+      var grid = root.querySelector('.s1230-hh__bloggers-grid');
+      var old = grid.querySelectorAll('.s1230-hh__person');
+      for (var i = 0; i < old.length; i++) grid.removeChild(old[i]);
+
+      var people = (bloggers || []).filter(function (b) { return b.showOnHome === true; })
+        .sort(function (a, b) { return (a.homeOrder || 0) - (b.homeOrder || 0); })
+        .slice(0, HOME_BLOGGERS_MAX);
+      block.style.display = people.length ? '' : 'none';
+
+      people.forEach(function (person) {
+        var whose = person.nameGenitive || person.name;
+        var article = el('article', 's1230-hh__person');
+
+        var photo = el('a', 's1230-hh__person-photo');
+        photo.href = person.catalogUrl;
+        photo.setAttribute('aria-label', 'Все вещи ' + whose);
+        var img = el('img', 's1230-hh__person-img');
+        img.src = asset(person.photo);
+        img.alt = person.name;
+        img.loading = 'lazy';
+        if (person.photoFocus) img.style.setProperty('--s1230-hh-focus', person.photoFocus);
+        photo.appendChild(img);
+        article.appendChild(photo);
+
+        var name = el('h3', 's1230-hh__person-name');
+        var nameLink = el('a', 's1230-hh__person-name-link', person.name);
+        nameLink.href = person.catalogUrl;
+        name.appendChild(nameLink);
+        article.appendChild(name);
+        article.appendChild(el('p', 's1230-hh__person-text', person.shortDescription));
+
+        var list = el('ul', 's1230-hh__previews');
+        list.setAttribute('aria-label', 'Вещи ' + whose);
+        (person.featuredProducts || []).slice(0, 4).forEach(function (product) {
+          var li = el('li', 's1230-hh__preview');
+          var link = el('a', 's1230-hh__preview-link');
+          link.href = product.productUrl;
+          link.setAttribute('aria-label', product.title);
+          var thumb = el('img', 's1230-hh__preview-img');
+          thumb.src = asset(product.image);
+          thumb.alt = '';
+          thumb.loading = 'lazy';
+          link.appendChild(thumb);
+          li.appendChild(link);
+          list.appendChild(li);
+        });
+        article.appendChild(list);
+
+        var cta = el('a', 's1230-hh__person-cta', 'Все вещи ' + whose + ' →');
+        cta.href = person.catalogUrl;
+        article.appendChild(cta);
+        grid.appendChild(article);
+      });
+    }
+
+    function refreshCatalog() {
+      var section = findSection(state.gender);
+      if (section) renderCatalog(section, findLook(section, state.style) || section.looks[0], false);
+    }
+
+    // Единственное место, где контент попадает в вёрстку
+    function applyContent(content) {
+      content = content || {};
+      STORY = content.featuredStory || null;
+      refreshCatalog();
+      renderBloggers(content.bloggers);
+    }
+
+    loadProducts().then(function (list) {
+      products = list;
+      refreshCatalog();
+    });
+
+    renderBloggers(null);               // до прихода данных блока нет
+    loadContent().then(applyContent);
+
+    // «Смотреть вещи →» — плавно к подборке, которая уже соответствует выбору
+    root.querySelector('.s1230-hh__to-catalog').addEventListener('click', function (e) {
+      e.preventDefault();
+      var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      catalogEl.scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
+    });
+
+    // Остальные кадры подгружаются после стартового, чтобы переключение было мгновенным
+    function loadRest() {
+      Object.keys(images).forEach(function (k) {
+        load(images[k].img);
+      });
+    }
+    if (document.readyState === 'complete') loadRest();
+    else window.addEventListener('load', loadRest);
+  })();
+</script>

@@ -1,0 +1,95 @@
+/*
+  12:30 · Контент сайта (site-content) — ВРЕМЕННЫЙ источник данных
+
+  Здесь только редакционный контент, два раздела:
+    featuredStory — одна вещь с историей, вставка в выдаче на главной;
+    bloggers      — блогеры и стилисты и вещи-превью каждого.
+
+  Это не CMS и не каталог. Товары, цены, фото, остатки, категории и страницы
+  товаров живут в Tilda. Сюда попадает только выбор: какую историю показать,
+  каких людей и какие их вещи.
+
+  Позже этот файл заменит CRM: те же данные в том же виде будут приходить
+  по адресу (см. README.md, FUTURE CRM MIGRATION). Вёрстка от источника не зависит.
+
+  Как менять — README.md рядом, раздел CONTENT MANAGEMENT NOW.
+
+  Подключение: скрипт должен выполниться раньше компонентов.
+    Локально: подключить этим файлом тегом script (src) перед компонентом.
+    В Tilda: содержимое файла целиком в один блок T123 (внутрь тега script)
+    на странице шапки сайта — тогда данные одни на все страницы.
+
+  id каждого человека — это же имя в аналитике (partner-analytics.js): латиницей, без пробелов,
+  и после запуска не менять, иначе цифры разорвутся на два имени.
+
+  Картинки: полные адреса с Tilda CDN (те же файлы, что в карточках товаров и на /collaboration).
+  Можно указать и имя файла в папке assets/ — тогда он берётся локально.
+  Правило: товары, цены, цитаты и ссылки — только реальные, из Tilda.
+*/
+(function () {
+  var CATALOG_ITEM = 'https://12-30.ru/catalogy/tproduct/797040197-';
+
+  window.s1230Content = {
+    /* ---------- Вставка в выдачу на главной ----------
+       Одна вещь, выбранная вручную. Главная остаётся кураторской:
+       вещи с историями сюда автоматически не попадают.
+       Чтобы убрать вставку совсем: featuredStory: null */
+    featuredStory: {
+      productUid: '863282539352',            // Tilda UID товара
+      brand: 'A.P.C.',
+      title: 'Брюки в полоску A.P.C.',      // как в Tilda; бренд в конце вёрстка не повторяет
+      quote: 'Покупала в свою первую поездку в Париж, в универмаге Printemps.', // слова продавца, без кавычек
+      price: 5300,                           // число, в рублях
+      image: 'https://static.tildacdn.com/stor3435-3261-4633-b232-353962623062/52727630.jpg',
+      imageAlt: 'Брюки A.P.C. в полоску на модели',
+      imageFocus: '50% 46%',                 // какая часть фото остаётся в кадре (по горизонтали, по вертикали)
+      productUrl: CATALOG_ITEM + '863282539352-bryuki-v-polosku-apc',
+      section: 'women'                       // в каком разделе главной показывать: women / men
+    },
+
+    /* ---------- Блогеры и стилисты ----------
+       Каждый человек описан один раз. Главная берёт тех, у кого showOnHome: true,
+       в порядке homeOrder, не больше двух. Страница всех блогеров показывает
+       всех в порядке массива. */
+    bloggers: [
+      {
+        id: 'curlyruboy',
+        name: 'Curlyruboy',
+        nameGenitive: 'Curlyruboy',          // для «Все вещи … →»
+        photo: 'https://static.tildacdn.com/tild3136-3963-4935-a261-656463383535/photo_51884127069758.jpg',
+        photoFocus: '50% 75%',
+        shortDescription: 'Мужская одежда, винтаж и повседневные образы.',
+        description: 'Мужская одежда, винтаж и повседневные образы.',
+        telegramUrl: 'https://t.me/Curlyruboytg',
+        catalogUrl: 'https://12-30.ru/catalogy?tfc_sort%5B797040197%5D=created:desc&tfc_query%5B797040197%5D=Curlyruboy&tfc_div=:::',
+        showOnHome: true,
+        homeOrder: 1,
+        featuredProducts: [
+          { productUid: '486785430513', title: 'Регбийка с принтом', image: 'https://static.tildacdn.com/stor3230-3262-4939-a366-313139636634/5b58c7abe76e2ecc4949b19499938c8b.png', productUrl: CATALOG_ITEM + '486785430513-svitshot' },
+          { productUid: '282945624133', title: 'Кожаная куртка Bershka', image: 'https://static.tildacdn.com/stor6430-6236-4264-b231-643832363261/f73d608c62c60d5a937df3344fd6e503.png', productUrl: CATALOG_ITEM + '282945624133-kozhanaya-kurtka-bershka' },
+          { productUid: '264642161343', title: 'Сумка с карманами Reserved', image: 'https://static.tildacdn.com/stor3238-3633-4939-b337-653261373563/b764789cce78f845dfdf543f274ad354.png', productUrl: CATALOG_ITEM + '264642161343-sumka-s-karmanami-reserved' },
+          { productUid: '497637588673', title: 'Худи на молнии с принтом', image: 'https://static.tildacdn.com/stor6139-6166-4566-a564-323161373732/5a1a0c75588e55fb7af7564003ca840b.png', productUrl: CATALOG_ITEM + '497637588673-hudi-na-molnii-s-printom' }
+        ]
+      },
+      {
+        id: 'marusia-azdrakhabova',
+        name: 'Маруся Аздрахабова',
+        nameGenitive: 'Маруси',
+        photo: 'https://static.tildacdn.com/tild3063-3539-4434-a662-666533353739/142d47ea-7884-47d8-9.jpg',
+        photoFocus: '42% 50%',
+        shortDescription: 'Осознанная мода и базовый гардероб на каждый день.',
+        description: 'Блог об осознанной моде и базовом гардеробе.',
+        telegramUrl: 'https://t.me/asdrahabova',
+        catalogUrl: 'https://12-30.ru/catalogy?tfc_sort%5B797040197%5D=created:desc&tfc_query%5B797040197%5D=%D0%BC%D0%B0%D1%80%D1%83%D1%81%D1%8F+%D0%B0%D0%B7%D0%B4%D1%80%D0%B0%D1%85%D0%B0%D0%B1%D0%BE%D0%B2%D0%B0&tfc_div=:::',
+        showOnHome: true,
+        homeOrder: 2,
+        featuredProducts: [
+          { productUid: '484832460323', title: 'Бомбер в винтажном стиле', image: 'https://static.tildacdn.com/stor3864-6432-4564-a132-646134343266/6e41f588411b44bc6245a10b31327510.png', productUrl: CATALOG_ITEM + '484832460323-bomber-smth' },
+          { productUid: '753681446593', title: 'Лонг-поло Lacoste', image: 'https://static.tildacdn.com/stor3963-3237-4166-a435-343966383834/4e3a33ef024d0f5d076ec6ffc73200f5.png', productUrl: CATALOG_ITEM + '753681446593-long-polo-rozovogo-tsveta-lacoste' },
+          { productUid: '503500314913', title: 'Лоферы Dr. Martens', image: 'https://static.tildacdn.com/stor3132-3463-4337-b663-376332646366/cc8b53519af0f916b8c8ad489631b544.webp', productUrl: CATALOG_ITEM + '503500314913-loferi-dr-martens' },
+          { productUid: '787808341043', title: 'Свитер в ромбик Befree', image: 'https://static.tildacdn.com/stor6465-3830-4537-b761-616230386466/fc30af36fbee71da4a2841a1184498d0.png', productUrl: CATALOG_ITEM + '787808341043-sviter-v-rombik-befree' }
+        ]
+      }
+    ]
+  };
+})();

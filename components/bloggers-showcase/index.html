@@ -1,0 +1,308 @@
+<!--
+  12:30 · Блогеры и стилисты (bloggers-showcase) — ЗАГОТОВКА
+
+  Показывает, как страница /bloggersshowcase может строиться из того же массива
+  bloggers, что и блок на главной: components/site-content/content.js.
+  Здесь нет ни одного имени, фото или ссылки — всё приходит из данных.
+  Добавили человека в content.js — он появился и здесь.
+
+  Это не замена текущей страницы в Tilda и не утверждённый дизайн страницы:
+  раскладка собрана из уже одобренных элементов нового UI.
+
+  Удаление: удалить блок T123. Глобальные стили сайта не затрагиваются.
+-->
+
+<meta charset="utf-8">
+<!-- ТОЛЬКО ДЛЯ ЛОКАЛЬНОГО ПРОСМОТРА. Перед вставкой в Tilda удалить. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Oswald:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body { margin: 0; }</style>
+<!-- /ТОЛЬКО ДЛЯ ЛОКАЛЬНОГО ПРОСМОТРА -->
+
+<!-- Контент сайта — тот же файл, что подключает главная -->
+<script src="../site-content/content.js"></script>
+<script src="../site-content/partner-analytics.js"></script>
+
+<style>
+  .s1230-bs {
+    --s1230-bs-text: #000000;
+    --s1230-bs-body: #232323;
+    --s1230-bs-muted: rgba(0, 0, 0, 0.58);
+    --s1230-bs-bg: #f4f4f2;
+    --s1230-bs-font-headline: var(--t-headline-font, 'Oswald', Arial, sans-serif);
+    --s1230-bs-font-text: var(--t-text-font, 'Inter', Arial, sans-serif);
+    --s1230-bs-gutter: 40px;
+
+    padding: 56px var(--s1230-bs-gutter) 96px;
+    font-family: var(--s1230-bs-font-text);
+    color: var(--s1230-bs-text);
+    background: #ffffff;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .s1230-bs *,
+  .s1230-bs *::before,
+  .s1230-bs *::after {
+    box-sizing: border-box;
+  }
+
+  .s1230-bs__title {
+    margin: 0;
+    font-family: var(--s1230-bs-font-headline);
+    font-weight: 500;
+    font-size: clamp(40px, 5.2vw, 80px);
+    line-height: 0.95;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+
+  .s1230-bs__lead {
+    margin: 16px 0 48px;
+    font-size: 16px;
+    line-height: 1.45;
+    color: var(--s1230-bs-body);
+  }
+
+  .s1230-bs__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 56px 32px;
+  }
+
+  .s1230-bs__photo {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 4 / 5;
+    background: var(--s1230-bs-bg);
+  }
+
+  .s1230-bs__img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--s1230-bs-focus, 50% 50%);
+  }
+
+  .s1230-bs__name {
+    margin: 16px 0 6px;
+    font-family: var(--s1230-bs-font-headline);
+    font-size: 24px;
+    font-weight: 500;
+    line-height: 1.05;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+
+  .s1230-bs__name-link {
+    color: var(--s1230-bs-text);
+    text-decoration: none;
+  }
+
+  .s1230-bs__text {
+    max-width: 400px;
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: var(--s1230-bs-body);
+  }
+
+  .s1230-bs__previews {
+    display: grid;
+    grid-template-columns: repeat(4, 76px);
+    gap: 8px;
+    margin: 16px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .s1230-bs__preview-link {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 3 / 4;
+    background: #ffffff;
+  }
+
+  .s1230-bs__preview-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .s1230-bs__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    column-gap: 28px;
+    margin-top: 8px;
+  }
+
+  .s1230-bs__cta,
+  .s1230-bs__social {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+  }
+
+  .s1230-bs__cta {
+    font-size: 13px;
+    color: var(--s1230-bs-text);
+  }
+
+  .s1230-bs__social {
+    font-size: 12px;
+    color: var(--s1230-bs-muted);
+  }
+
+  .s1230-bs a:focus-visible {
+    outline: 1px solid var(--s1230-bs-text);
+    outline-offset: 4px;
+  }
+
+  @media (max-width: 1199px) {
+    .s1230-bs__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 899px) {
+    .s1230-bs {
+      --s1230-bs-gutter: 16px;
+      padding-top: 32px;
+      padding-bottom: 64px;
+    }
+
+    .s1230-bs__lead {
+      margin-bottom: 28px;
+    }
+
+    .s1230-bs__grid {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 44px;
+    }
+
+    .s1230-bs__photo {
+      aspect-ratio: 1 / 1;
+    }
+
+    .s1230-bs__previews {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+</style>
+
+<main class="s1230-bs" data-s1230-bs>
+  <h1 class="s1230-bs__title">Блогеры и стилисты</h1>
+  <p class="s1230-bs__lead">Вещи людей, чей стиль нам интересен.</p>
+  <!-- Профили добавляет скрипт из s1230Content.bloggers — все, в порядке массива -->
+  <div class="s1230-bs__grid"></div>
+</main>
+
+<script>
+  (function () {
+    var root = document.querySelector('[data-s1230-bs]');
+    if (!root || root.getAttribute('data-s1230-bs-ready')) return;
+    root.setAttribute('data-s1230-bs-ready', '1');
+
+    var content = window.s1230Content || {};
+    var grid = root.querySelector('.s1230-bs__grid');
+
+    var ASSET_BASE = '../../assets/';
+
+    function asset(src) {
+      return /^https?:/.test(src) ? src : ASSET_BASE + src;
+    }
+
+    function el(tag, className, text) {
+      var node = document.createElement(tag);
+      node.className = className;
+      if (text) node.textContent = text;
+      return node;
+    }
+
+    // Аналитика партнёров (placement bloggers_showcase): разметка data-s1230-* и два вызова внизу
+    function mark(node, target, source, productUid) {
+      node.setAttribute('data-s1230-target', target);
+      node.setAttribute('data-s1230-source', source);
+      if (productUid) node.setAttribute('data-s1230-product', productUid);
+    }
+
+    (content.bloggers || []).forEach(function (person) {
+      var whose = person.nameGenitive || person.name;
+      var article = el('article', 's1230-bs__person');
+      article.id = person.id;
+      article.setAttribute('data-s1230-person', person.id);
+      article.setAttribute('data-s1230-name', person.name);
+
+      var photo = el('a', 's1230-bs__photo');
+      photo.href = person.catalogUrl;
+      photo.setAttribute('aria-label', 'Все вещи ' + whose);
+      mark(photo, 'catalog', 'photo');
+      var img = el('img', 's1230-bs__img');
+      img.src = asset(person.photo);
+      img.alt = person.name;
+      img.loading = 'lazy';
+      if (person.photoFocus) img.style.setProperty('--s1230-bs-focus', person.photoFocus);
+      photo.appendChild(img);
+      article.appendChild(photo);
+
+      var name = el('h2', 's1230-bs__name');
+      var nameLink = el('a', 's1230-bs__name-link', person.name);
+      nameLink.href = person.catalogUrl;
+      mark(nameLink, 'catalog', 'name');
+      name.appendChild(nameLink);
+      article.appendChild(name);
+      article.appendChild(el('p', 's1230-bs__text', person.description || person.shortDescription));
+
+      var list = el('ul', 's1230-bs__previews');
+      list.setAttribute('aria-label', 'Вещи ' + whose);
+      (person.featuredProducts || []).forEach(function (product) {
+        var li = el('li', 's1230-bs__preview');
+        var link = el('a', 's1230-bs__preview-link');
+        link.href = product.productUrl;
+        link.setAttribute('aria-label', product.title);
+        mark(link, 'product', 'preview', product.productUid);
+        var thumb = el('img', 's1230-bs__preview-img');
+        thumb.src = asset(product.image);
+        thumb.alt = '';
+        thumb.loading = 'lazy';
+        link.appendChild(thumb);
+        li.appendChild(link);
+        list.appendChild(li);
+      });
+      article.appendChild(list);
+
+      var actions = el('div', 's1230-bs__actions');
+      var cta = el('a', 's1230-bs__cta', 'Все вещи ' + whose + ' →');
+      cta.href = person.catalogUrl;
+      mark(cta, 'catalog', 'all_items');
+      actions.appendChild(cta);
+      if (person.telegramUrl) {
+        var tg = el('a', 's1230-bs__social', 'Telegram');
+        tg.href = person.telegramUrl;
+        mark(tg, 'telegram', 'telegram');
+        tg.target = '_blank';
+        tg.rel = 'noopener noreferrer';
+        actions.appendChild(tg);
+      }
+      article.appendChild(actions);
+      grid.appendChild(article);
+    });
+
+    var pa = window.s1230PartnerAnalytics;
+    if (pa) {
+      pa.attach(root, 'bloggers_showcase');
+      pa.observe(root, 'bloggers_showcase');
+    }
+  })();
+</script>

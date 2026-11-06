@@ -1,0 +1,804 @@
+<!--
+  12:30 · Подборка с главной (collection) — страница /collection
+
+  Продолжение главной: «Смотреть все →» под подборкой ведёт сюда с выбранными
+  разделом и образом. Состояние целиком в адресе:
+    /collection?gender=women|men&style=casual|evening|sport-style|sport
+  Допустимы только 7 состояний главной: women — все четыре образа, men — casual, sport-style, sport.
+  Своего каталога нет: название, цена, фото, наличие и ссылка приходят из живой
+  Tilda Store (тот же запрос, что у главной и у /garage-sale). Каталог берётся один
+  раз, дальше всё клиентски.
+
+  Правило выдачи (то же, что у подборки на главной, только без лимита в 8 вещей):
+    в наличии
+    + раздел ровно «Женское» / «Мужское» (gender)
+    + раздел ровно «Casual» / «Evening» / «Sport style» / «Sport» (style)
+    + НЕТ раздела «Garage sale» (у него своя страница).
+  Порядок — как в каталоге Tilda. Показываются все вещи, без постраничности:
+  фото грузятся лениво (loading="lazy"), по мере прокрутки.
+
+  Фильтры под заголовком (раздел и образ уже заданы адресом, повторно их не выбираем):
+    слева КАТЕГОРИЯ + — тип вещи, список раскрывается в потоке страницы; в нём только
+          типы, которые реально есть в этой подборке (из ответа Tilda, служебные разделы
+          из NON_GARMENT не показываются);
+    справа ЦЕНА ↑ / ЦЕНА ↓ — повторный клик возвращает порядок Tilda.
+  Дальше всё клиентски, новых запросов к Tilda при кликах нет.
+  Адрес: …&category=<тип вещи>&sort=price-asc|price-desc (необязательно; незнакомое значение игнорируется).
+
+  Состояния:
+    загрузка          — серые места под карточки, заголовок уже виден;
+    нет gender/style, незнакомое значение или пара вне 7 состояний (например, men + evening) —
+                      «Подборка не найдена.» и ссылка на главную;
+    вещей нет         — «Здесь пока ничего нет.» и ссылка на главную;
+    категория пуста   — «Здесь пока ничего нет.», фильтры на месте, чтобы сбросить категорию;
+    Tilda не ответила — спокойная фраза и ссылка на главную. Страница не ломается никогда.
+
+  Tilda отдаёт каталог только страницам на домене сайта (12-30.ru).
+  Шапка и подвал — глобальные блоки Tilda, внутри компонента их нет.
+
+  Удаление: удалить блок T123. Глобальные стили сайта не затрагиваются.
+-->
+
+<meta charset="utf-8">
+<!-- ТОЛЬКО ДЛЯ ЛОКАЛЬНОГО ПРОСМОТРА. Перед вставкой в Tilda удалить: там шрифты
+     уже подключены, а отступы body задаёт сама Tilda. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Oswald:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body { margin: 0; }</style>
+<meta name="s1230-dev-catalog" content="../../assets/dev/tilda-catalog-snapshot.json">
+<!-- /ТОЛЬКО ДЛЯ ЛОКАЛЬНОГО ПРОСМОТРА -->
+
+<style>
+  .s1230-cl {
+    --s1230-cl-text: #000000;
+    --s1230-cl-body: #232323;
+    --s1230-cl-muted: rgba(0, 0, 0, 0.58);
+    --s1230-cl-page: #ffffff;
+    --s1230-cl-font-headline: var(--t-headline-font, 'Oswald', Arial, sans-serif);
+    --s1230-cl-font-text: var(--t-text-font, 'Inter', Arial, sans-serif);
+    --s1230-cl-gutter: 40px;
+
+    box-sizing: border-box;
+    padding: 64px var(--s1230-cl-gutter) 96px;
+    background: var(--s1230-cl-page);
+    font-family: var(--s1230-cl-font-text);
+    color: var(--s1230-cl-text);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .s1230-cl *,
+  .s1230-cl *::before,
+  .s1230-cl *::after {
+    box-sizing: border-box;
+  }
+
+  .s1230-cl__head[hidden],
+  .s1230-cl__bar[hidden],
+  .s1230-cl__cats[hidden],
+  .s1230-cl__empty[hidden],
+  .s1230-cl__grid[hidden],
+  .s1230-cl__note[hidden] {
+    display: none;
+  }
+
+  /* Как заголовок подборки на главной: раздел — мелкой подписью, образ — крупно */
+  .s1230-cl__head {
+    margin: 0 0 40px;
+  }
+
+  .s1230-cl__title {
+    margin: 0;
+    padding: 0;
+    color: var(--s1230-cl-text);
+  }
+
+  .s1230-cl__gender {
+    display: block;
+    margin: 0 0 8px;
+    font-family: var(--s1230-cl-font-text);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--s1230-cl-muted);
+  }
+
+  .s1230-cl__style {
+    display: block;
+    font-family: var(--s1230-cl-font-headline);
+    font-size: 56px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    text-transform: uppercase;
+  }
+
+  /* Фильтры — как на Garage sale: текст без плашек, активный подчёркнут */
+  .s1230-cl__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px 40px;
+    margin: -12px 0 28px;
+  }
+
+  /* Кнопки Tilda не трогаем: сбрасываем всё, что могло прийти снаружи */
+  .s1230-cl__opt {
+    -webkit-appearance: none;
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    font-family: var(--s1230-cl-font-text);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-align: left;
+    color: var(--s1230-cl-muted);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+    transition: color 200ms ease;
+  }
+
+  .s1230-cl__opt:hover,
+  .s1230-cl__opt.is-active {
+    color: var(--s1230-cl-text);
+  }
+
+  .s1230-cl__opt.is-active {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 8px;
+  }
+
+  .s1230-cl__opt:focus-visible {
+    outline: 1px solid var(--s1230-cl-text);
+    outline-offset: 4px;
+  }
+
+  /* КАТЕГОРИЯ: слово и плюс/минус; выбранная категория подставляется в подпись */
+  .s1230-cl__opt--toggle::after {
+    content: '+';
+    margin-left: 8px;
+    font-size: 14px;
+    letter-spacing: 0;
+  }
+
+  .s1230-cl__opt--toggle[aria-expanded="true"]::after {
+    content: '\2212';
+  }
+
+  .s1230-cl__sort {
+    display: flex;
+    align-items: center;
+    gap: 0 24px;
+  }
+
+  /* Список категорий раскрывается под строкой фильтров, ничего не перекрывает */
+  .s1230-cl__cats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 28px;
+    margin: -12px 0 28px;
+    padding: 0;
+    list-style: none;
+  }
+
+  .s1230-cl__cats li {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .s1230-cl__empty {
+    margin: 0;
+    padding: 24px 0 0;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--s1230-cl-body);
+  }
+
+  .s1230-cl__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 48px 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .s1230-cl__grid.is-entering {
+    animation: s1230-cl-appear 400ms ease both;
+  }
+
+  @keyframes s1230-cl-appear {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  .s1230-cl__card {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .s1230-cl__card-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .s1230-cl__card-link:focus-visible {
+    outline: 1px solid var(--s1230-cl-text);
+    outline-offset: 4px;
+  }
+
+  /* Фото 3:4, кадрируется по центру. Пока грузится — светлый студийный тон */
+  .s1230-cl__card-media {
+    display: block;
+    overflow: hidden;
+    aspect-ratio: 3 / 4;
+    background: linear-gradient(to bottom, #f5f5f3, #ededea);
+    transition: opacity 200ms ease;
+  }
+
+  .s1230-cl__card:nth-child(4n + 2) .s1230-cl__card-media {
+    background: linear-gradient(to bottom, #f1f0ed, #e8e7e3);
+  }
+
+  .s1230-cl__card:nth-child(4n + 3) .s1230-cl__card-media {
+    background: linear-gradient(to bottom, #f3f3f1, #eaeae7);
+  }
+
+  .s1230-cl__card:nth-child(4n + 4) .s1230-cl__card-media {
+    background: linear-gradient(to bottom, #efefec, #e6e6e2);
+  }
+
+  .s1230-cl__card-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  .s1230-cl__card-link:hover .s1230-cl__card-media {
+    opacity: 0.85;
+  }
+
+  .s1230-cl__card-name {
+    display: block;
+    margin-top: 14px;
+    font-size: 15px;
+    line-height: 1.35;
+    color: var(--s1230-cl-body);
+    overflow-wrap: anywhere;
+  }
+
+  .s1230-cl__card-price {
+    display: block;
+    margin-top: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.35;
+    color: var(--s1230-cl-text);
+  }
+
+  /* Не найдено / пусто / не загрузилось: одна спокойная фраза и выход на главную */
+  .s1230-cl__note {
+    max-width: 520px;
+    margin: 0;
+    padding: 0;
+  }
+
+  .s1230-cl__note-text {
+    margin: 0;
+    padding: 0;
+    font-size: 17px;
+    line-height: 1.5;
+    color: var(--s1230-cl-body);
+  }
+
+  .s1230-cl__note-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-top: 12px;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--s1230-cl-text);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
+    transition: text-underline-offset 200ms ease;
+  }
+
+  .s1230-cl__note-link:hover {
+    color: var(--s1230-cl-text);
+    text-underline-offset: 9px;
+  }
+
+  .s1230-cl__note-link:focus-visible {
+    outline: 1px solid var(--s1230-cl-text);
+    outline-offset: 4px;
+  }
+
+  /* ---------- Планшет и телефон ---------- */
+  @media (max-width: 899px) {
+    .s1230-cl {
+      --s1230-cl-gutter: 16px;
+      padding: 40px var(--s1230-cl-gutter) 64px;
+    }
+
+    .s1230-cl__head {
+      margin-bottom: 28px;
+    }
+
+    .s1230-cl__gender {
+      margin-bottom: 6px;
+      font-size: 11px;
+    }
+
+    .s1230-cl__style {
+      font-size: 40px;
+    }
+
+    .s1230-cl__bar {
+      gap: 0 24px;
+      margin: -8px 0 20px;
+    }
+
+    .s1230-cl__sort {
+      gap: 0 20px;
+    }
+
+    .s1230-cl__cats {
+      gap: 0 20px;
+      margin: -8px 0 20px;
+    }
+
+    .s1230-cl__grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 32px 12px;
+    }
+
+    .s1230-cl__card-name {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
+    .s1230-cl__card-price {
+      font-size: 14px;
+    }
+  }
+
+  @media (max-width: 359px) {
+    .s1230-cl__bar,
+    .s1230-cl__sort,
+    .s1230-cl__cats {
+      column-gap: 16px;
+    }
+
+    .s1230-cl__opt {
+      letter-spacing: 0.08em;
+    }
+
+    .s1230-cl__style {
+      font-size: 34px;
+    }
+
+    .s1230-cl__grid {
+      gap: 28px 10px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .s1230-cl__grid.is-entering {
+      animation: none;
+    }
+
+    .s1230-cl__card-media,
+    .s1230-cl__opt,
+    .s1230-cl__note-link {
+      transition: none;
+    }
+  }
+</style>
+
+<div class="s1230-cl" data-s1230-cl>
+  <!-- Заголовок: выбранные раздел и образ, из адреса -->
+  <header class="s1230-cl__head" hidden>
+    <h1 class="s1230-cl__title">
+      <span class="s1230-cl__gender"></span>
+      <span class="s1230-cl__style"></span>
+    </h1>
+  </header>
+
+  <!-- Фильтры: категории добавляет скрипт по данным Tilda -->
+  <div class="s1230-cl__bar" hidden>
+    <button class="s1230-cl__opt s1230-cl__opt--toggle" type="button" aria-expanded="false" aria-controls="s1230-cl-cats" data-cat-toggle hidden>Категория</button>
+    <div class="s1230-cl__sort" role="group" aria-label="Цена">
+      <button class="s1230-cl__opt" type="button" data-sort="price-asc">Цена ↑</button>
+      <button class="s1230-cl__opt" type="button" data-sort="price-desc">Цена ↓</button>
+    </div>
+  </div>
+  <ul class="s1230-cl__cats" id="s1230-cl-cats" hidden></ul>
+  <p class="s1230-cl__empty" hidden>Здесь пока ничего нет.</p>
+
+  <!-- Карточки рисует скрипт из живого каталога Tilda -->
+  <ul class="s1230-cl__grid" aria-label="Вещи подборки" hidden></ul>
+  <div class="s1230-cl__note" hidden>
+    <p class="s1230-cl__note-text"></p>
+    <a class="s1230-cl__note-link" href="/">Вернуться на главную →</a>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var root = document.querySelector('[data-s1230-cl]');
+    if (!root || root.getAttribute('data-s1230-cl-ready')) return;
+    root.setAttribute('data-s1230-cl-ready', '1');
+
+    var headEl = root.querySelector('.s1230-cl__head');
+    var genderEl = root.querySelector('.s1230-cl__gender');
+    var styleEl = root.querySelector('.s1230-cl__style');
+    var barEl = root.querySelector('.s1230-cl__bar');
+    var catsEl = root.querySelector('.s1230-cl__cats');
+    var catToggle = root.querySelector('[data-cat-toggle]');
+    var emptyEl = root.querySelector('.s1230-cl__empty');
+    var gridEl = root.querySelector('.s1230-cl__grid');
+    var noteEl = root.querySelector('.s1230-cl__note');
+    var noteText = root.querySelector('.s1230-cl__note-text');
+
+    // Тот же каталог, что у главной: весь магазин 12:30, блок на странице /catalogy
+    var TILDA_STORE = {
+      api: 'https://store.tildaapi.com/api/getproductslist/',
+      storepartuid: '909723291111',
+      recid: '797040197'
+    };
+    // Значения адреса → точные имена разделов Tilda (регистр важен) и подписи заголовка
+    // styles — допустимые образы раздела: ровно те 7 состояний, что есть на главной
+    // (у men нет evening). Любая пара вне списка — «Подборка не найдена».
+    var GENDERS = {
+      women: { category: 'Женское', label: 'Women', styles: ['casual', 'evening', 'sport-style', 'sport'] },
+      men:   { category: 'Мужское', label: 'Men',   styles: ['casual', 'sport-style', 'sport'] }
+    };
+    var STYLES = {
+      'casual':      { category: 'Casual',      label: 'Casual' },
+      'evening':     { category: 'Evening',     label: 'Evening' },
+      'sport-style': { category: 'Sport style', label: 'Sport style' },
+      'sport':       { category: 'Sport',       label: 'Sport' }
+    };
+    var EXCLUDED = 'Garage sale';   // у него своя страница
+    // Разделы Tilda, которые не про тип вещи: в КАТЕГОРИИ их нет.
+    // «Одежда» — общий раздел-зонтик, он есть почти у каждой вещи и ничего не уточняет.
+    // «Кроссовки» — уточнение к «Обуви» (у каждой такой вещи «Обувь» уже есть), отдельным пунктом не нужен.
+    var NON_GARMENT = ['Garage sale', 'Женское', 'Мужское', 'Casual', 'Evening', 'Sport style', 'Sport',
+      'Одежда', 'Новинки', 'Home', 'Кроссовки'];
+    var SORTS = ['price-asc', 'price-desc'];
+    var filters = { category: '', sort: '' };   // sort пустой — порядок Tilda
+    var items = [];          // вещи этой подборки — единственный источник для фильтров
+    var partOrder = {};      // порядок разделов как в Tilda
+    var STUBS = 8;
+
+    function decodeText(text) {
+      var box = document.createElement('textarea');
+      box.innerHTML = text || '';
+      return box.value;
+    }
+
+    // Tilda иногда отдаёт цену варианта с пробелом ("6 800.00"): без чистки parseFloat даст 6
+    function parsePrice(value) {
+      return parseFloat(String(value === null || value === undefined ? '' : value).replace(/\s/g, '').replace(',', '.'));
+    }
+
+    function parseList(json) {
+      try { return JSON.parse(json || '[]') || []; } catch (e) { return []; }
+    }
+
+    function inStock(quantity) {
+      return quantity === '' || quantity === null || quantity === undefined || parseFloat(quantity) > 0;
+    }
+
+    // Товар Tilda → то, что нужно карточке. Ничего не дописываем и не исправляем.
+    function normalizeProduct(raw, partNames) {
+      var editions = raw.editions || [];
+      var gallery = parseList(raw.gallery);
+      var price = parsePrice(raw.price);
+      editions.forEach(function (edition) {
+        var p = parsePrice(edition.price);
+        if (!isNaN(p) && (isNaN(price) || p < price)) price = p;
+      });
+      return {
+        uid: String(raw.uid),
+        title: decodeText(raw.title),
+        price: price,
+        image: (gallery[0] && gallery[0].img) || (editions[0] && editions[0].img) || '',
+        url: String(raw.url || '').replace(/^http:/, 'https:'),
+        categories: parseList(raw.partuids).map(function (uid) { return partNames[uid] || ''; }),
+        available: editions.length
+          ? editions.some(function (edition) { return inStock(edition.quantity); })
+          : inStock(raw.quantity)
+      };
+    }
+
+    // Один запрос при загрузке страницы. Ошибка сети или ответа — reject:
+    // страница отличает «не загрузилось» от «пусто»
+    function loadProducts() {
+      if (!window.fetch) return Promise.reject(new Error('no fetch'));
+      var all = [], names = {};
+
+      function pageUrl(slice) {
+        return TILDA_STORE.api + '?storepartuid=' + TILDA_STORE.storepartuid + '&recid=' + TILDA_STORE.recid +
+          '&getparts=true&size=500&slice=' + slice + '&c=' + Date.now();
+      }
+      function hasMore(data, slice) { return data.nextslice && slice < 10; }
+      // dev-start — ТОЛЬКО ДЛЯ ЛОКАЛЬНОГО ПРОСМОТРА: снимок ответа Tilda вместо сети
+      var dev = document.querySelector('meta[name="s1230-dev-catalog"]');
+      if (dev) {
+        pageUrl = function () { return dev.getAttribute('content'); };
+        hasMore = function () { return false; };
+      }
+      // dev-end
+
+      function page(slice) {
+        return fetch(pageUrl(slice)).then(function (response) {
+          if (!response.ok) throw new Error('http ' + response.status);
+          return response.json();
+        }).then(function (data) {
+          if (!data || !data.products) throw new Error('bad response');
+          (data.parts || []).forEach(function (part) {
+            names[part.uid] = part.title;
+            partOrder[part.title] = parseFloat(part.sort) || 0;
+          });
+          all = all.concat(data.products);
+          return hasMore(data, slice) ? page(data.nextslice) : null;
+        });
+      }
+
+      return page(1).then(function () {
+        return all.map(function (raw) { return normalizeProduct(raw, names); });
+      });
+    }
+
+    function formatPrice(value) {
+      return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ' ') + ' ₽';
+    }
+
+    function el(tag, className, text) {
+      var node = document.createElement(tag);
+      node.className = className;
+      if (text) node.textContent = text;
+      return node;
+    }
+
+    // Состояние берём из адреса; пустое, незнакомое значение или пара вне списка — состояния нет
+    function readState() {
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var genderKey = String(params.get('gender') || '').toLowerCase();
+        var styleKey = String(params.get('style') || '').toLowerCase();
+        var gender = GENDERS.hasOwnProperty(genderKey) ? GENDERS[genderKey] : null;
+        var style = STYLES.hasOwnProperty(styleKey) ? STYLES[styleKey] : null;
+        return gender && style && gender.styles.indexOf(styleKey) !== -1 ? { gender: gender, style: style } : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function showNote(text) {
+      gridEl.innerHTML = '';
+      gridEl.hidden = true;
+      barEl.hidden = true;
+      catsEl.hidden = true;
+      emptyEl.hidden = true;
+      noteText.textContent = text;
+      noteEl.hidden = false;
+    }
+
+    function showStubs() {
+      gridEl.hidden = false;
+      for (var n = 0; n < STUBS; n++) {
+        var stub = el('li', 's1230-cl__card');
+        stub.setAttribute('aria-hidden', 'true');
+        stub.appendChild(el('span', 's1230-cl__card-media'));
+        gridEl.appendChild(stub);
+      }
+    }
+
+    // ---------- Фильтры и сортировка: только по уже загруженным items ----------
+
+    function visibleItems() {
+      var list = items.filter(function (item) {
+        return !filters.category || item.categories.indexOf(filters.category) !== -1;
+      });
+      if (!filters.sort) return list;   // порядок Tilda
+      var dir = filters.sort === 'price-asc' ? 1 : -1;
+      return list.map(function (item, index) { return { item: item, index: index }; })
+        .sort(function (a, b) { return (a.item.price - b.item.price) * dir || a.index - b.index; })
+        .map(function (entry) { return entry.item; });
+    }
+
+    // Типы вещей — разделы, которые реально есть у вещей этой подборки, в порядке Tilda
+    function garmentCategories() {
+      var seen = {}, list = [];
+      items.forEach(function (item) {
+        item.categories.forEach(function (name) {
+          if (name && !seen[name] && NON_GARMENT.indexOf(name) === -1) {
+            seen[name] = true;
+            list.push(name);
+          }
+        });
+      });
+      return list.sort(function (a, b) { return (partOrder[a] || 0) - (partOrder[b] || 0); });
+    }
+
+    function renderCategoryList() {
+      catsEl.innerHTML = '';
+      var names = garmentCategories();
+      catToggle.hidden = !names.length;
+      if (!names.length) return;
+      [''].concat(names).forEach(function (name) {
+        var li = document.createElement('li');
+        var button = el('button', 's1230-cl__opt', name || 'Все категории');
+        button.type = 'button';
+        button.setAttribute('data-category', name);
+        li.appendChild(button);
+        catsEl.appendChild(li);
+      });
+    }
+
+    function syncControls() {
+      [].forEach.call(barEl.querySelectorAll('[data-sort]'), function (button) {
+        var on = button.getAttribute('data-sort') === filters.sort;
+        button.classList.toggle('is-active', on);
+        button.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      [].forEach.call(catsEl.querySelectorAll('[data-category]'), function (button) {
+        var on = button.getAttribute('data-category') === filters.category;
+        button.classList.toggle('is-active', on);
+        button.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+      catToggle.textContent = filters.category || 'Категория';
+      catToggle.classList.toggle('is-active', !!filters.category);
+    }
+
+    // ---------- Адрес: gender и style заданы, category и sort необязательны ----------
+
+    function readFilters() {
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var sort = params.get('sort');
+        var category = params.get('category');
+        if (SORTS.indexOf(sort) !== -1) filters.sort = sort;
+        if (category && garmentCategories().indexOf(category) !== -1) filters.category = category;
+      } catch (e) {}
+    }
+
+    function writeUrl() {
+      try {
+        var params = new URLSearchParams(window.location.search);
+        ['category', 'sort'].forEach(function (key) { params.delete(key); });
+        if (filters.category) params.set('category', filters.category);
+        if (filters.sort) params.set('sort', filters.sort);
+        var query = params.toString();
+        history.replaceState(null, '', window.location.pathname + (query ? '?' + query : '') + window.location.hash);
+      } catch (e) {}
+    }
+
+    // ---------- Вывод ----------
+
+    function render() {
+      var list = visibleItems();
+      gridEl.innerHTML = '';
+      gridEl.classList.remove('is-entering');
+      gridEl.hidden = !list.length;
+      emptyEl.hidden = !!list.length;
+
+      list.forEach(function (item) {
+        var li = el('li', 's1230-cl__card');
+        li.setAttribute('data-uid', item.uid);
+        var link = el('a', 's1230-cl__card-link');
+        link.href = item.url || '/catalogy';
+
+        var media = el('span', 's1230-cl__card-media');
+        if (item.image) {
+          var photo = el('img', 's1230-cl__card-img');
+          photo.src = item.image;
+          photo.alt = '';
+          photo.loading = 'lazy';
+          photo.decoding = 'async';
+          media.appendChild(photo);
+        }
+        link.appendChild(media);
+        link.appendChild(el('span', 's1230-cl__card-name', item.title));
+        link.appendChild(el('span', 's1230-cl__card-price', formatPrice(item.price)));
+
+        li.appendChild(link);
+        gridEl.appendChild(li);
+      });
+      if (list.length) {
+        void gridEl.offsetWidth;
+        gridEl.classList.add('is-entering');
+      }
+      syncControls();
+    }
+
+    function setCatsOpen(open) {
+      catsEl.hidden = !open;
+      catToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+
+    barEl.addEventListener('click', function (event) {
+      var button = event.target.closest ? event.target.closest('button') : null;
+      if (!button || !barEl.contains(button)) return;
+      if (button.hasAttribute('data-cat-toggle')) {
+        setCatsOpen(catsEl.hidden);
+        return;
+      }
+      if (button.hasAttribute('data-sort')) {
+        var sort = button.getAttribute('data-sort');
+        filters.sort = filters.sort === sort ? '' : sort;   // повторный клик снимает цену
+      }
+      writeUrl();
+      render();
+    });
+
+    catsEl.addEventListener('click', function (event) {
+      var button = event.target.closest ? event.target.closest('button') : null;
+      if (!button || !catsEl.contains(button)) return;
+      filters.category = button.getAttribute('data-category');
+      setCatsOpen(false);
+      writeUrl();
+      render();
+    });
+
+    var state = readState();
+    if (!state) {
+      showNote('Подборка не найдена.');
+      return;
+    }
+
+    genderEl.textContent = state.gender.label;
+    styleEl.textContent = state.style.label;
+    headEl.hidden = false;
+    showStubs();
+
+    loadProducts().then(function (products) {
+      // в наличии + gender + style, без Garage sale
+      items = products.filter(function (item) {
+        var c = item.categories;
+        return item.available && !isNaN(item.price) &&
+          c.indexOf(state.gender.category) !== -1 &&
+          c.indexOf(state.style.category) !== -1 &&
+          c.indexOf(EXCLUDED) === -1;
+      });
+      if (!items.length) {
+        showNote('Здесь пока ничего нет.');
+        return;
+      }
+      renderCategoryList();
+      readFilters();
+      barEl.hidden = false;
+      render();
+    }).catch(function () {
+      showNote('Вещи не загрузились. Обновите страницу.');
+    });
+  })();
+</script>
